@@ -395,6 +395,77 @@ g7
 
 ## Características laborales
 
+```{r include=FALSE}
+g8 <- proc_db[[15]] %>% 
+  select(anotrim, hab_t_dos, ciuo08, total, total_low, total_upp) %>% 
+  filter(anotrim %in% c(trims[6:7]), ciuo08 != "Otros no identificados") %>% 
+  na.omit() %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         ciuo08 = as.character(ciuo08),
+         ciuo08 = str_trunc(ciuo08, 41, "right"),
+         ciuo08 = factor(ciuo08, levels = unique(ciuo08)))  %>% 
+  ggplot(aes(x = hab_t_dos, y = total, group = anotrim, fill = anotrim)) +
+  geom_bar(stat = "identity", position = position_dodge(width=0.9)) +
+  geom_errorbar(aes(ymin = total_low, ymax = total_upp), 
+                position = position_dodge(width=0.9), width = 0.5) +
+  scale_y_continuous(labels = miles, n.breaks = 6) +
+  facet_wrap(~ciuo08, scales = "free_y") +
+  MetBrewer::scale_fill_met_d("Archambault", direction = 1) +
+  theme(axis.text.x = element_text(angle = 0)) +
+  labs(y = "Cantidad trabajadores",
+       x = "Tramo horas",
+       fill = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.")
 
 
+```
+
+
+```{r}
+#| label: fig-tramociuo
+#| fig-cap: "Distribución según tramos horas habituales totales trabajadas (MHTH) y grupo ocupacional"
+#| fig-cap-location: top
+#| warning: false
+#| message: false
+#| fig-align: center
+#| out-width: 100%
+
+g8
+```
+
+
+
+```{r include=FALSE}
+g9 <- proc_db[[16]] %>% 
+  select(anotrim, hab_t_dos, rama, total) %>%
+  na.omit() %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         rama = as.character(rama),
+         rama = str_trunc(rama, 41, "right"),
+         rama = factor(rama, levels = unique(rama)))  %>% 
+  ggplot(aes(x = anotrim, y = total, group = hab_t_dos, color = hab_t_dos)) +
+  geom_line(linewidth = 1) +
+  scale_y_continuous(labels = miles) +
+  scale_x_discrete(breaks = trims) +
+  facet_wrap(~rama, scales = "free_y", ncol = 3) +
+  MetBrewer::scale_color_met_d("Archambault") +
+  labs(y = "Cantidad trabajadores",
+       x = NULL,
+       color = "Tramos horas MHTH",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+```
+
+
+```{r}
+#| label: fig-tramorama
+#| fig-cap: "Evolución distribución de trabajadores en tramos de horas habituales totales trabajadas (MHTH) según sector actividad económica"
+#| fig-cap-location: top
+#| warning: false
+#| message: false
+#| fig-align: center
+#| out-width: 100%
+#| fig-asp: 2
+
+g9
+```
 
