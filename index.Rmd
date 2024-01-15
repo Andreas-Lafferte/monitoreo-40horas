@@ -1,0 +1,8 @@
+---
+title: 'Proyecto | Monitoreo implementación Ley 40 horas reducción de jornada laboral'
+---
+## Descripción
+<br>Proyecto de monitoreo de la implementación de la Ley 40 horas en base a en encuestas de empleo, hogares y registros adiministrativos</br>  
+
+- Autor: Andreas Laffert (SUBTRAB)
+

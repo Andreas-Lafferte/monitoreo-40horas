@@ -1,0 +1,103 @@
+---
+title: "<center> Reporte | Avance monitoreo 40 horas <center/>"
+author: "Andreas Laffert, Unidad de Estudios Laborales"
+date: today
+lang: es
+fontsize: 14pt
+theme:
+  light: flatly
+toc: true
+toc-depth: 3
+toc-expand: 2
+toc-title: Contenidos
+number-sections: true
+number-depth: 3
+
+---
+
+```{r lib-data, echo=FALSE, warning=FALSE, message=FALSE}
+
+# 1. Librerias ----
+if (! require("pacman")) install.packages("pacman")
+
+pacman::p_load(tidyverse,
+               sjmisc,
+               sjlabelled,
+               srvyr,
+               here,
+               sjPlot, 
+               psych,
+               summarytools,
+               rstatix, 
+               kableExtra)
+
+options(scipen = 999)
+options(survey.lonely.psu = "certainty")
+rm(list = ls())
+
+# 2. Datos ----
+
+load(file = here("output", "proc_data_ene.RData"))
+
+```
+
+
+
+<style>
+.logo {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+</style>
+
+<img class="logo" src="logo.png" width="190" height="150">
+
+<div style="text-align: justify">
+
+# Presentación
+
+El presente reporte entrega un avance del monitoreo de la reducción de la jornada laboral a 40 horas en el mercado del trabajo, de acuerdo con las indicaciones de la legislación. En detalle, se analiza la evolución y cambio de las horas habituales de trabajo para los asalariados formales del sector privado según diferentes características sociodemográficas y laborales. En este primer avance, solo se utilizan los datos provenientes de la Encuesta Nacional de Empleo del Instituto Nacional de Estadísticas (INE). 
+
+
+# Datos, variables y métodos
+
+## Datos
+
+Este reporte se basa en la información proporcionada por la Encuesta Nacional de Empleo del Instituto Nacional de Estadísticas (INE) desde el año 2017 al trimestre móvil septiembre-octubre-noviembre del 2023. Esta base de datos se sustenta en la aplicación de cuestionarios presenciales, de manera telefónica o mixta. El diseño muestral complejo es de tipo probabilístico, estratificado y bietápico. La unidad de análisis son los individuos en edad de trabajar con residencia habitual en hogares ubicados en viviendas particulares ocupadas dentro del territorio nacional. 
+
+## Variables
+
+### Horas de trabajo
+
+La variable principal corresponde a las `horas habituales trabajadas` declaradas por las personas. El nivel de medición de esta variable es de razón (aunque no existan casos cuyas horas habituales sean 0 ya que no formarían parte de los asalariados). Esta variable es tratada tanto en su forma númerica original, como de manera categórica en tramos de interés. Los valores 888 y 999 se remueven ya que corresponden a valores no sabe/no responde y perdidos. 
+
+### Sociodemográficas
+
+El `sexo` de las personas es una variable con nivel de medición tipo dummy.
+
+La `edad` de las personas es continua y con nivel de medición de razón, pero en este reporte se trata como una variable ordinal recodificada en tramos de edad.
+
+El `nivel educacional` alcanzado por las personas tiene un nivel de medición ordinal pero es tratada como una variable ordinal colapsada en agrupaciones que señalan los niveles educativos obtenidos de acuerdo al estándar CINE.
+
+### Laborales
+
+El `grupo ocupacional` se mide a partir de una variable nominal de acuerdo con la clasificación internacional uniforme de ocupaciones CIUO 08 adaptado a Chile.
+
+El `sector de actividad económica` de la empresa donde trabajan las personas se mide a partir de una variable nominal de acuerdo con el Clasificador de Actividades Económicas Nacional para Encuestas
+Sociodemográficas (CAENES), que es el resultado de la adaptación del Clasificador Chileno de Actividades Económicas CIIU4.CL 2012.
+
+El `tamaño de empresa` en donde trabajan las personas se mide a partir
+de una variable nominal ordinal, que es resultado de una agrupación realizada de acuerdo con el número de trabajadores que tiene la empresa reportado.
+
+En la Tabla 1 se presentan los posibles valores que pueden tomar las variables utilizadas.
+
+## Métodos 
+
+Se realizan análisis descriptivos univariados y bivariados, utilizando estimaciones puntuales a nivel poblacional junto con sus respectivas medidas de confiabilidad y error.
+
+# Resultados preliminares
+
+
+
+
