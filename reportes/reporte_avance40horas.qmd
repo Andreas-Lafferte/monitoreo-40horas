@@ -22,14 +22,14 @@ if (! require("pacman")) install.packages("pacman")
 
 pacman::p_load(tidyverse,
                sjmisc,
-               sjlabelled,
-               srvyr,
                here,
                sjPlot, 
-               psych,
                summarytools,
                rstatix, 
-               kableExtra)
+               kableExtra, 
+               tinytable,
+               plotly,
+               MetBrewer)
 
 options(scipen = 999)
 options(survey.lonely.psu = "certainty")
@@ -41,7 +41,35 @@ load(file = here("output", "proc_data_ene.RData"))
 
 ```
 
+```{r set, echo=FALSE, message=FALSE, warning=FALSE}
 
+knitr::opts_chunk$set(echo = FALSE, include = TRUE, warning = FALSE, message = FALSE)
+
+miles <- function(x) {
+  format(round(as.numeric(x),0), big.mark = ".")
+}
+
+decimales <- function(x) {
+  format(round(as.numeric(x), 2), decimal.mark = ",")
+}
+
+# set theme
+
+theme_nice <- function() {
+   theme_bw() +
+  theme(legend.position = "top",
+        axis.text.y = element_text(face = "bold"),
+        plot.title = element_text(face = "bold", size = 12),
+        axis.text.x = element_text(angle = 90,
+                                   vjust = 0.5,
+                                   colour = "#4a4a4a",
+                                   size = rel(1)))
+
+
+}
+
+theme_set(theme_nice())
+```
 
 <style>
 .logo {
@@ -97,6 +125,123 @@ En la Tabla 1 se presentan los posibles valores que pueden tomar las variables u
 Se realizan análisis descriptivos univariados y bivariados, utilizando estimaciones puntuales a nivel poblacional junto con sus respectivas medidas de confiabilidad y error.
 
 # Resultados preliminares
+
+## Horas habituales totales
+
+```{r include=FALSE, warning=FALSE}
+
+trims <- c(paste0(2017:2023, " son"), paste0(2017:2023, " nde"))
+
+
+g1 <- proc_db[[13]] %>% 
+  select(anotrim, hab_t_dos, total) %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         total = round(total, 0)) %>% 
+  ggplot(aes(x = anotrim, y = total, group = hab_t_dos, color = hab_t_dos)) +
+  geom_line(linewidth = 1) +
+  scale_y_continuous(labels = miles, n.breaks = 8) +
+  MetBrewer::scale_color_met_d(name = "Archambault") +
+  scale_x_discrete(breaks = trims) +
+  labs(y = "Cantidad trabajadores",
+       x = NULL,
+       color = "Tramos horas",
+       caption = "Fuente: Elaboración propia en base a ENE.") 
+
+
+g1 <- ggplotly(g1)
+
+```
+
+
+```{r}
+#| label: fig-evoltram
+#| fig-cap: "Evolución distribución de trabajadores según tramos de horas habituales totales trabajadas"
+#| fig-cap-location: top
+#| warning: false
+#| message: false
+#| fig-align: center
+#| out-width: 100%
+
+
+g1
+```
+
+
+```{r include=FALSE, warning=FALSE}
+
+trims <- c(paste0(2017:2023, " son"), paste0(2017:2023, " nde"))
+
+
+g2 <- proc_db[[1]] %>% 
+  select(anotrim, media, media_low, media_upp) %>% 
+  mutate(anotrim = factor(anotrim, levels = anotrim)) %>% 
+  ggplot(aes(x = anotrim, y = media, group = 1)) +
+  geom_line(color = "darkorange", linewidth = 1) +
+  geom_ribbon(aes(ymin = media_low, ymax = media_upp), alpha = 0.3, fill = "orange") +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_discrete(breaks = trims) +
+  labs(y = "Promedio horas habituales totales",
+       x = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.") 
+
+
+g2 <- ggplotly(g2)
+
+```
+
+
+```{r}
+#| label: fig-evolpromedio
+#| fig-cap: "Evolución promedio de horas habituales totales trabajadas"
+#| fig-cap-location: top
+#| warning: false
+#| message: false
+#| fig-align: center
+#| out-width: 100%
+
+
+g2
+```
+
+
+```{r include=FALSE, warning=FALSE}
+
+trims <- c(paste0(2017:2023, " son"), paste0(2017:2023, " nde"))
+
+g3 <- proc_db[[2]] %>% 
+  select(anotrim, seg_ocup, media, media_low, media_upp) %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         seg_ocup = if_else(seg_ocup == 1, "Si", "No")) %>% 
+  ggplot(aes(x = anotrim, y = media, group = seg_ocup, color = seg_ocup)) +
+  geom_line(linewidth = 1) +  
+  scale_color_manual(values = c("firebrick", "#084387")) +
+  geom_ribbon(aes(ymin = media_low, ymax = media_upp, fill = seg_ocup), alpha = 0.1) +
+  guides(fill = "none") +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_discrete(breaks = trims) +
+  labs(y = "Promedio horas habituales totales",
+       x = NULL,
+       color = "¿Tiene segunda ocupación?",
+       caption = "Fuente: Elaboración propia en base a ENE.") 
+  
+```
+
+```{r}
+#| label: fig-evolpromediosegunda
+#| fig-cap: "Evolución promedio de horas habituales totales trabajadas según si tiene segunda ocupación"
+#| fig-cap-location: top
+#| warning: false
+#| message: false
+#| fig-align: center
+#| out-width: 100%
+
+g3
+```
+
+
+## Características sociodemográficas
+
+## Características laborales
 
 
 
