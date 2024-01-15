@@ -58,11 +58,11 @@ decimales <- function(x) {
 theme_nice <- function() {
    theme_bw() +
   theme(legend.position = "top",
-        axis.text.y = element_text(face = "bold"),
+        axis.title = element_text(size = 12),
+        axis.text.y = element_text(size = rel(1)),
         plot.title = element_text(face = "bold", size = 12),
         axis.text.x = element_text(angle = 90,
                                    vjust = 0.5,
-                                   colour = "#4a4a4a",
                                    size = rel(1)))
 
 
@@ -98,7 +98,10 @@ Este reporte se basa en la información proporcionada por la Encuesta Nacional d
 
 ### Horas de trabajo
 
-La variable principal corresponde a las `horas habituales trabajadas` declaradas por las personas. El nivel de medición de esta variable es de razón (aunque no existan casos cuyas horas habituales sean 0 ya que no formarían parte de los asalariados). Esta variable es tratada tanto en su forma númerica original, como de manera categórica en tramos de interés. Los valores 888 y 999 se remueven ya que corresponden a valores no sabe/no responde y perdidos. 
+La variable principal corresponde a una medida agregada de `horas totales habituales trabajadas (MHTH)` declaradas por las personas. El nivel de medición de esta variable es de razón (aunque no existan casos cuyas horas habituales sean 0 ya que no formarían parte de los asalariados). Esta variable se construye sumando las horas declaradas en la ocupación principal y, en caso de existir, en la segunda ocupación[^1]. Este indicador ofrece una medida general del total de horas trabajadas en el mercado laboral.
+
+Esta variable es tratada de forma numérica y categórica en tramos de interés. Los valores 888 y 999 se remueven ya que corresponden a valores no sabe/no responde y perdidos. 
+
 
 ### Sociodemográficas
 
@@ -119,6 +122,9 @@ El `tamaño de empresa` en donde trabajan las personas se mide a partir
 de una variable nominal ordinal, que es resultado de una agrupación realizada de acuerdo con el número de trabajadores que tiene la empresa reportado.
 
 En la Tabla 1 se presentan los posibles valores que pueden tomar las variables utilizadas.
+
+
+[^1]: Si posee una segunda ocupación, las horas declaradas en esta se suman a las de la ocupación principal; en caso contrario, se conservan las horas habituales declaradas en la primera ocupación.
 
 ## Métodos 
 
@@ -144,7 +150,7 @@ g1 <- proc_db[[13]] %>%
   scale_x_discrete(breaks = trims) +
   labs(y = "Cantidad trabajadores",
        x = NULL,
-       color = "Tramos horas",
+       color = "Tramos horas MHTH",
        caption = "Fuente: Elaboración propia en base a ENE.") 
 
 
@@ -155,7 +161,7 @@ g1 <- ggplotly(g1)
 
 ```{r}
 #| label: fig-evoltram
-#| fig-cap: "Evolución distribución de trabajadores según tramos de horas habituales totales trabajadas"
+#| fig-cap: "Evolución distribución de trabajadores según tramos de horas habituales totales trabajadas (MHTH)"
 #| fig-cap-location: top
 #| warning: false
 #| message: false
@@ -180,7 +186,7 @@ g2 <- proc_db[[1]] %>%
   geom_ribbon(aes(ymin = media_low, ymax = media_upp), alpha = 0.3, fill = "orange") +
   scale_y_continuous(labels = decimales, n.breaks = 5) +
   scale_x_discrete(breaks = trims) +
-  labs(y = "Promedio horas habituales totales",
+  labs(y = "Promedio MHTH",
        x = NULL,
        caption = "Fuente: Elaboración propia en base a ENE.") 
 
@@ -192,7 +198,7 @@ g2 <- ggplotly(g2)
 
 ```{r}
 #| label: fig-evolpromedio
-#| fig-cap: "Evolución promedio de horas habituales totales trabajadas"
+#| fig-cap: "Evolución promedio de horas habituales totales trabajadas (MHTH)"
 #| fig-cap-location: top
 #| warning: false
 #| message: false
@@ -214,12 +220,12 @@ g3 <- proc_db[[2]] %>%
          seg_ocup = if_else(seg_ocup == 1, "Si", "No")) %>% 
   ggplot(aes(x = anotrim, y = media, group = seg_ocup, color = seg_ocup)) +
   geom_line(linewidth = 1) +  
-  scale_color_manual(values = c("firebrick", "#084387")) +
-  geom_ribbon(aes(ymin = media_low, ymax = media_upp, fill = seg_ocup), alpha = 0.1) +
+  MetBrewer::scale_color_met_d("Archambault") +
+  geom_ribbon(aes(ymin = media_low, ymax = media_upp, color = seg_ocup), alpha = 0.1) +
   guides(fill = "none") +
   scale_y_continuous(labels = decimales, n.breaks = 5) +
   scale_x_discrete(breaks = trims) +
-  labs(y = "Promedio horas habituales totales",
+  labs(y = "Promedio horas habituales trabajadas",
        x = NULL,
        color = "¿Tiene segunda ocupación?",
        caption = "Fuente: Elaboración propia en base a ENE.") 
@@ -228,7 +234,7 @@ g3 <- proc_db[[2]] %>%
 
 ```{r}
 #| label: fig-evolpromediosegunda
-#| fig-cap: "Evolución promedio de horas habituales totales trabajadas según si tiene segunda ocupación"
+#| fig-cap: "Evolución promedio de horas habituales trabajadas según si tiene segunda ocupación"
 #| fig-cap-location: top
 #| warning: false
 #| message: false
@@ -240,6 +246,152 @@ g3
 
 
 ## Características sociodemográficas
+
+
+```{r include=FALSE}
+
+g4 <- proc_db[[14]] %>% 
+  select(anotrim, hab_t_dos, sexo, total, total_low, total_upp) %>% 
+  filter(anotrim %in% c(trims[1:7])) %>% 
+  na.omit() %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         sexo = if_else(sexo == 1, "Hombres", "Mujeres")) %>% 
+  ggplot(aes(x = anotrim, y = total, group = sexo, fill = sexo)) +
+  geom_bar(stat = "identity", position = position_dodge(width=0.9)) +
+  geom_errorbar(aes(ymin = total_low, ymax = total_upp), 
+                position = position_dodge(width=0.9), width = 0.5) +
+  facet_wrap(~hab_t_dos, scales = "free_y") +
+  scale_y_continuous(labels = miles, n.breaks = 5) +
+  MetBrewer::scale_fill_met_d("Archambault") +
+  labs(y = "Cantidad trabajadores",
+       x = NULL,
+       fill = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.") 
+  
+```
+
+
+```{r}
+#| label: fig-tramosexo
+#| fig-cap: "Distribución por tramos de horas totales habituales trabajadas (MHTH) y sexo"
+#| fig-cap-location: top
+#| warning: false
+#| message: false
+#| fig-align: center
+#| out-width: 100%
+
+g4
+```
+
+
+```{r include=FALSE}
+
+g5 <- proc_db[[3]] %>% 
+  select(anotrim, sexo, media, media_low, media_upp) %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         sexo = if_else(sexo == 1, "Hombres", "Mujeres")) %>% 
+  ggplot(aes(x = anotrim, y = media, group = sexo, color = sexo)) +
+  geom_line(linewidth = 1) +  
+  MetBrewer::scale_color_met_d("Archambault") +
+  geom_ribbon(aes(ymin = media_low, ymax = media_upp, color = sexo), alpha = 0.15) +
+  guides(fill = "none") +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_discrete(breaks = trims) +
+  labs(y = "Promedio MHTH",
+       x = NULL,
+       color = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+```
+
+
+```{r}
+#| label: fig-mediaexo
+#| fig-cap: "Evolución promedio de horas habituales totales trabajadas (MHTH) según sexo"
+#| fig-cap-location: top
+#| warning: false
+#| message: false
+#| fig-align: center
+#| out-width: 100%
+
+g5
+```
+
+
+
+```{r include=FALSE}
+
+g6 <- proc_db[[4]] %>% 
+  select(anotrim, edad_t, media, media_low, media_upp) %>% 
+  filter(anotrim %in% c(trims[1:7])) %>% 
+  na.omit() %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  ggplot(aes(x = anotrim, y = media, group = edad_t)) +
+  geom_point(aes(shape=edad_t, color=edad_t), size = 2.5) +
+  scale_shape_manual(values = c("circle", "triangle", "square", "diamond")) +
+  geom_errorbar(aes(ymin = media_low, ymax = media_upp, color = edad_t), width = 0.5) +
+  MetBrewer::scale_color_met_d("Austria") +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+   labs(y = "Promedio MHTH",
+       x = NULL,
+       color = "Edad",
+       shape = "Edad",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+
+
+```
+
+
+
+```{r}
+#| label: fig-mediaedad
+#| fig-cap: "Promedio de horas habituales totales trabajadas (HMTH) según tramo etario"
+#| fig-cap-location: top
+#| warning: false
+#| message: false
+#| fig-align: center
+#| out-width: 100%
+
+g6
+```
+
+
+
+```{r include=FALSE}
+
+g7 <- proc_db[[5]] %>% 
+  select(anotrim, cine, media, media_low, media_upp) %>% 
+  filter(anotrim %in% c(trims[1:7])) %>% 
+  na.omit() %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  ggplot(aes(x = anotrim, y = media, group = cine)) +
+  geom_point(aes(shape=cine, color=cine), size = 2.5) +
+  scale_shape_manual(values = c("circle", "triangle", "square", "diamond")) +
+  geom_errorbar(aes(ymin = media_low, ymax = media_upp, color = cine), width = 0.5) +
+  MetBrewer::scale_color_met_d("Austria") +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  labs(y = "Promedio MHTH",
+       x = NULL,
+       color = "Nivel educativo",
+       shape = "Nivel educativo",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+```
+
+
+```{r}
+#| label: fig-mediacine
+#| fig-cap: "Promedio de horas habituales totales trabajadas (HMTH) según nivel educacional"
+#| fig-cap-location: top
+#| warning: false
+#| message: false
+#| fig-align: center
+#| out-width: 100%
+
+g7
+```
+
 
 ## Características laborales
 
