@@ -146,7 +146,7 @@ g1 <- proc_db[[13]] %>%
   ggplot(aes(x = anotrim, y = total, group = hab_t_dos, color = hab_t_dos)) +
   geom_line(linewidth = 1) +
   scale_y_continuous(labels = miles, n.breaks = 8) +
-  MetBrewer::scale_color_met_d(name = "Archambault") +
+  MetBrewer::scale_color_met_d(name = "Austria") +
   scale_x_discrete(breaks = trims) +
   labs(y = "Cantidad trabajadores",
        x = NULL,
@@ -220,7 +220,7 @@ g3 <- proc_db[[2]] %>%
          seg_ocup = if_else(seg_ocup == 1, "Si", "No")) %>% 
   ggplot(aes(x = anotrim, y = media, group = seg_ocup, color = seg_ocup)) +
   geom_line(linewidth = 1) +  
-  MetBrewer::scale_color_met_d("Archambault") +
+  MetBrewer::scale_color_met_d("Austria") +
   geom_ribbon(aes(ymin = media_low, ymax = media_upp, color = seg_ocup), alpha = 0.1) +
   guides(fill = "none") +
   scale_y_continuous(labels = decimales, n.breaks = 5) +
@@ -257,12 +257,12 @@ g4 <- proc_db[[14]] %>%
   mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
          sexo = if_else(sexo == 1, "Hombres", "Mujeres")) %>% 
   ggplot(aes(x = anotrim, y = total, group = sexo, fill = sexo)) +
-  geom_bar(stat = "identity", position = position_dodge(width=0.9)) +
+  geom_bar(stat = "identity", position = position_dodge(width=0.9), alpha = 0.8) +
   geom_errorbar(aes(ymin = total_low, ymax = total_upp), 
                 position = position_dodge(width=0.9), width = 0.5) +
   facet_wrap(~hab_t_dos, scales = "free_y") +
   scale_y_continuous(labels = miles, n.breaks = 5) +
-  MetBrewer::scale_fill_met_d("Archambault") +
+  MetBrewer::scale_fill_met_d("Austria") +
   labs(y = "Cantidad trabajadores",
        x = NULL,
        fill = NULL,
@@ -292,7 +292,7 @@ g5 <- proc_db[[3]] %>%
          sexo = if_else(sexo == 1, "Hombres", "Mujeres")) %>% 
   ggplot(aes(x = anotrim, y = media, group = sexo, color = sexo)) +
   geom_line(linewidth = 1) +  
-  MetBrewer::scale_color_met_d("Archambault") +
+  MetBrewer::scale_color_met_d("Austria") +
   geom_ribbon(aes(ymin = media_low, ymax = media_upp, color = sexo), alpha = 0.15) +
   guides(fill = "none") +
   scale_y_continuous(labels = decimales, n.breaks = 5) +
@@ -402,15 +402,15 @@ g8 <- proc_db[[15]] %>%
   na.omit() %>% 
   mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
          ciuo08 = as.character(ciuo08),
-         ciuo08 = str_trunc(ciuo08, 41, "right"),
+         ciuo08 = str_trunc(ciuo08, 30, "right"),
          ciuo08 = factor(ciuo08, levels = unique(ciuo08)))  %>% 
   ggplot(aes(x = hab_t_dos, y = total, group = anotrim, fill = anotrim)) +
-  geom_bar(stat = "identity", position = position_dodge(width=0.9)) +
+  geom_bar(stat = "identity", position = position_dodge(width=0.9), alpha = 0.8) +
   geom_errorbar(aes(ymin = total_low, ymax = total_upp), 
                 position = position_dodge(width=0.9), width = 0.5) +
   scale_y_continuous(labels = miles, n.breaks = 6) +
   facet_wrap(~ciuo08, scales = "free_y") +
-  MetBrewer::scale_fill_met_d("Archambault", direction = 1) +
+  MetBrewer::scale_fill_met_d("Austria", direction = 1) +
   theme(axis.text.x = element_text(angle = 0)) +
   labs(y = "Cantidad trabajadores",
        x = "Tramo horas",
@@ -428,11 +428,49 @@ g8 <- proc_db[[15]] %>%
 #| warning: false
 #| message: false
 #| fig-align: center
+#| fig-width: 8
 #| out-width: 100%
+#| fig-asp: 1
 
 g8
 ```
 
+
+```{r include=FALSE}
+
+g11 <- proc_db[[6]] %>% 
+  select(anotrim, ciuo08, media, media_low, media_upp) %>% 
+  filter(ciuo08 != "Otros no identificados") %>% 
+  na.omit() %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         ciuo08 = as.character(ciuo08),
+         ciuo08 = str_trunc(ciuo08, 30, "right"),
+         ciuo08 = factor(ciuo08, levels = unique(ciuo08))) %>% 
+  ggplot(aes(x = anotrim, y = media, group = 1)) +
+  geom_line(linewidth = 1, color = "darkred") +
+  geom_ribbon(aes(ymin = media_low, ymax = media_upp), alpha = 0.2, fill = "red") +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_discrete(breaks = trims[1:7]) +
+  facet_wrap(~ciuo08) +
+  labs(y = "Promedio MHTH",
+       x = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+```
+
+
+```{r}
+#| label: fig-promediociuo
+#| fig-cap: "Evolución promedio de horas habituales totales trabajadas (MHTH) según grupo ocupacional"
+#| fig-cap-location: top
+#| warning: false
+#| message: false
+#| fig-align: center
+#| out-width: 100%
+#| fig-asp: 1
+
+g11
+```
 
 
 ```{r include=FALSE}
@@ -441,14 +479,14 @@ g9 <- proc_db[[16]] %>%
   na.omit() %>% 
   mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
          rama = as.character(rama),
-         rama = str_trunc(rama, 41, "right"),
+         rama = str_trunc(rama, 30, "right"),
          rama = factor(rama, levels = unique(rama)))  %>% 
   ggplot(aes(x = anotrim, y = total, group = hab_t_dos, color = hab_t_dos)) +
-  geom_line(linewidth = 1) +
+  geom_line(linewidth = 0.8) +
   scale_y_continuous(labels = miles) +
-  scale_x_discrete(breaks = trims) +
+  scale_x_discrete(breaks = trims[1:7]) +
   facet_wrap(~rama, scales = "free_y", ncol = 3) +
-  MetBrewer::scale_color_met_d("Archambault") +
+  MetBrewer::scale_color_met_d("Austria") +
   labs(y = "Cantidad trabajadores",
        x = NULL,
        color = "Tramos horas MHTH",
@@ -465,7 +503,120 @@ g9 <- proc_db[[16]] %>%
 #| fig-align: center
 #| out-width: 100%
 #| fig-asp: 2
+#| fig-width: 8
 
 g9
 ```
 
+```{r include=FALSE}
+
+g12 <- proc_db[[8]] %>% 
+  select(anotrim, rama, media, media_low, media_upp) %>% 
+  na.omit() %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         rama = as.character(rama),
+         rama = str_trunc(rama, 30, "right"),
+         rama = factor(rama, levels = unique(rama))) %>% 
+  ggplot(aes(x = anotrim, y = media, group = 1)) +
+  geom_line(linewidth = 1, color = "darkred") +
+  geom_ribbon(aes(ymin = media_low, ymax = media_upp), alpha = 0.2, fill = "red") +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_discrete(breaks = trims[1:7]) +
+  facet_wrap(~rama, scales = "free_y", ncol = 3) +
+  labs(y = "Promedio MHTH",
+       x = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+```
+
+
+```{r}
+#| label: fig-promediorama
+#| fig-cap: "Evolución promedio de horas habituales totales trabajadas (MHTH) según sector de actividad económica"
+#| fig-cap-location: top
+#| warning: false
+#| message: false
+#| fig-align: center
+#| out-width: 100%
+#| fig-asp: 2
+#| fig-width: 8
+
+g12
+```
+
+
+```{r include=FALSE}
+g10 <- proc_db[[17]] %>% 
+  select(anotrim, hab_t_dos, tam_emp, total, total_low, total_upp) %>%
+  filter(anotrim %in% c(trims[6:7])) %>% 
+  na.omit() %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         tam_emp = as.character(tam_emp),
+         tam_emp = str_trunc(tam_emp, 30, "right"),
+         tam_emp = factor(tam_emp, levels = unique(tam_emp)))  %>% 
+  ggplot(aes(x = hab_t_dos, y = total, group = anotrim, fill = anotrim)) +
+  geom_bar(stat = "identity", position = position_dodge(width=0.9), alpha = 0.8) +
+  geom_errorbar(aes(ymin = total_low, ymax = total_upp), 
+                position = position_dodge(width=0.9), width = 0.5) +
+  scale_y_continuous(labels = miles, n.breaks = 6) +
+  facet_wrap(~tam_emp, scales = "free_y") +
+  MetBrewer::scale_fill_met_d("Austria", direction = 1) +
+  theme(axis.text.x = element_text(angle = 0)) +
+  labs(y = "Cantidad trabajadores",
+       x = "Tramo horas",
+       fill = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.")
+  
+```
+
+
+```{r}
+#| label: fig-tramoemp
+#| fig-cap: "Distribución según tramos horas habituales totales trabajadas (MHTH) y tamaño de empresa"
+#| fig-cap-location: top
+#| warning: false
+#| message: false
+#| fig-align: center
+#| out-width: 100%
+#| fig-asp: 1
+#| fig-width: 8
+
+g10
+```
+
+
+
+
+```{r include=FALSE}
+
+g13 <- proc_db[[7]] %>% 
+  select(anotrim, tam_emp, media, media_low, media_upp) %>% 
+  na.omit() %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         tam_emp = as.character(tam_emp),
+         tam_emp = str_trunc(tam_emp, 30, "right"),
+         tam_emp = factor(tam_emp, levels = unique(tam_emp))) %>% 
+  ggplot(aes(x = anotrim, y = media, group = 1)) +
+  geom_line(linewidth = 1, color = "darkred") +
+  geom_ribbon(aes(ymin = media_low, ymax = media_upp), alpha = 0.2, fill = "red") +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_discrete(breaks = trims[1:7]) +
+  facet_wrap(~tam_emp) +
+  labs(y = "Promedio MHTH",
+       x = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+```
+
+
+```{r}
+#| label: fig-promedioemp
+#| fig-cap: "Evolución promedio de horas habituales totales trabajadas (MHTH) según sector tamaño de empresa"
+#| fig-cap-location: top
+#| warning: false
+#| message: false
+#| fig-align: center
+#| out-width: 100%
+
+g13
+```
