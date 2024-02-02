@@ -1,0 +1,1870 @@
+---
+geometry: "left=0cm,right=1.5cm,top=0cm,bottom=0cm"
+header-includes:
+- \usepackage{titling}
+- \pretitle{\begin{center}\LARGE\includegraphics[width=3cm]{logo.png}\\[\bigskipamount]}
+- \posttitle{\end{center}}
+- \usepackage[fontsize=12pt]{scrextend}
+- \usepackage{floatrow}
+- \usepackage{multicol}
+- \usepackage{fontspec}
+- \setmainfont{Georgia}
+- \floatsetup[figure]{capposition=top}
+- \floatsetup[table]{capposition=top}
+- \floatplacement{figure}{H}
+- \floatplacement{table}{h}
+- \usepackage{titlesec}
+- \newcommand{\sectionbreak}{\clearpage}
+- \usepackage{sectsty}
+- \sectionfont{\raggedright}
+- \subsectionfont{\raggedright}
+- \subsubsectionfont{\raggedright}
+- \newcommand{\centeredsection}[1]{\begin{center}\section*{#1}\end{center}} 
+output: 
+  bookdown::pdf_document2:
+    latex_engine: xelatex
+    extra_dependencies: ["color","xcolor","array","ragged2e","wrapfig","multicol","fancyhdr","hyphenat","tikz","amsmath"]
+    toc: no
+    highlight: tango
+    number_sections: TRUE
+link-citations: yes
+linkcolor: blue
+urlcolor: blue
+---
+
+\tolerance=1
+\emergencystretch=\maxdimen
+\hyphenpenalty=10000
+\hbadness=10000
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, include = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+```{r paquetes, echo=FALSE}
+if (! require("pacman")) install.packages("pacman")
+
+pacman::p_load(knitr, 
+               tidyverse,
+               kableExtra,
+               here,
+               sjmisc,
+               summarytools,
+               srvyr,
+               cowplot,
+               rstatix,
+               t_series,
+               ggpubr,
+               forecast,
+               rempsyc,
+               broom)
+
+options(scipen=999)
+options(survey.lonely.psu = "certainty")
+rm(list = ls())
+```
+
+```{r datos, echo=FALSE}
+
+load(file = here("output", "proc_data_ene.RData"))
+load(file = here("output", "ene_transversal.RData"))
+
+ene <- lapply(ene, function(x){
+  as.data.frame(x) %>% 
+    filter(asal_priv == 1 & formal == 1)
+})
+
+ene_pond <- list(
+  as_survey_design(.data = ene[[1]], ids = 1, strata = estrato, weights = fact_cal),
+  as_survey_design(.data = ene[[2]], ids = 1, strata = estrato, weights = fact_cal)
+)
+
+```
+
+```{r funciones, echo=FALSE}
+
+miles <- function(x) {
+  format(round(as.numeric(x),0), big.mark = ".")
+}
+
+decimales <- function(x) {
+  format(round(as.numeric(x), 2), decimal.mark = ",")
+}
+
+# set theme
+
+#windowsFonts(`Times New Roman` = windowsFont("Times New Roman"))
+
+theme_nice <- function() {
+  theme_bw(base_size = 12) +
+    theme(legend.position = "bottom",
+          axis.title = element_text(size = 12),
+          axis.text.y = element_text(size = rel(1)),
+          plot.title = element_text(face = "bold", size = 12),
+          axis.text.x = element_text(angle = 90,
+                                     vjust = 0.5,
+                                     size = rel(1)))
+  
+  
+}
+
+theme_set(theme_nice())
+
+```
+
+
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\figurename}{Figura}
+
+\definecolor{naranjodoc}{RGB}{0, 105, 184}
+\definecolor{naranjodocoscuro}{RGB}{0, 76, 133}
+
+\begin{tikzpicture}
+ \draw [fill=naranjodoc] (0,0) rectangle (14,27.9);
+ \draw [fill=naranjodocoscuro] (14,0) rectangle (15,27.9);
+ \node[text=naranjodoc, font=\bfseries] at (18.3,25) {\Large Unidad de Estudios};
+  \node[text=naranjodoc, font=\bfseries] at (18.3,24) {\Large Laborales};
+ \node[right, text=white, font=\bfseries] at (1,17) {\Huge Informe de Resultados};
+ \node[right,text=white] at (1,15) {\Large Monitoreo de la implementación};
+  \node[right,text=white] at (1,14) {\Large de la reducción de la Jornada Laboral};
+ \node[right,text=white] at (1,13) {\Large a 40 horas con la Encuesta Nacional de Empleo };
+ 
+  \node[right,text=white, font=\bfseries] at (1,6) {\large Autor: };
+ \node[right, text=white] at (1,5.2) {\large Andreas Laffert};
+ 
+ \draw [fill=white] (0.5,4) rectangle (13.5,4.2);
+ \node[right, text=white, font=\bfseries] at (9,2) {Primera versión};
+  \node[right, text=white, font=\bfseries] at (9,1.5) {`r lubridate::today()`};
+ \node[inner sep=0pt] (ine) at (18.3,4)
+    {\includegraphics[width=2in,height=2in]{logo.PNG}};
+  \node[text=white] at (18,10) {};
+\end{tikzpicture}
+
+\newpage
+
+\newgeometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+\newpage
+
+\setcounter{tocdepth}{2}
+\renewcommand{\contentsname}{Tabla de contenidos}
+
+\hypersetup{linkcolor=black}
+\tableofcontents
+
+\hypersetup{linkcolor=blue}
+
+\newpage
+
+\centeredsection{Resumen}
+
+\thispagestyle{empty} <!-- Para evitar numeración en la página del Resumen -->
+
+
+En este informe se presenta un análisis y propuesta metodológica de monitoreo de la reducción de la jornada laboral a 40 horas en el mercado del trabajo mediante encuestas de hogares. En específico, se analiza la evolución, composición y cambio de las horas habituales de trabajo de los asalariados formales del sector privado según diferentes características sociodemográficas y laborales. Utilizando datos provenientes de la Encuesta Nacional de Empleo del [Instituto Nacional de Estadísticas (INE)](https://www.ine.gob.cl), se pueden destacar los siguientes hallazgos:
+
+-
+-
+-
+    
+
+\newpage
+
+# Introducción
+
+# Datos, variables y métodos
+
+## Datos
+
+Este reporte se basa en la información proporcionada por la Encuesta Nacional de Empleo del [Instituto Nacional de Estadísticas (INE)](https://www.ine.gob.cl) desde el año 2017 al trimestre móvil septiembre-octubre-noviembre del 2023. Esta base de datos se sustenta en la aplicación de cuestionarios presenciales, de manera telefónica o mixta. El diseño muestral complejo es de tipo probabilístico, estratificado y bietápico. La unidad de análisis son los individuos en edad de trabajar con residencia habitual en hogares ubicados en viviendas particulares ocupadas dentro del territorio nacional.
+
+## Variables
+
+### Horas de trabajo
+
+Las **horas de trabajo** se miden de dos maneras. Por un lado, se emplean las horas habituales trabajadas en la ocupación principal declaradas por las personas. El nivel de medición de esta variable es de razón (aunque no existan casos cuyas horas habituales sean 0 ya que no formarían parte de los asalariados). Esta variable es tratada de forma numérica y categórica en tramos de interés.
+
+Por otro lado, se utiliza una medida agregada del total de horas habituales trabajadas (MATHO) declaradas por las personas. Esta variable se construye sumando las horas declaradas en la ocupación principal y, en caso de existir, en la segunda ocupación[^1]. Así, este indicador ofrece una medida general del total de horas trabajadas en el mercado laboral. Al igual que la variable anterior, es tratada de forma numérica y categórica en tramos de interés.
+
+[^1]: Si posee una segunda ocupación, las horas declaradas en esta se suman a las de la ocupación principal; en caso contrario, se conservan las horas habituales declaradas en la primera ocupación.
+
+En ambos casos, los valores 888 y 999 son removidos ya que corresponden a valores no sabe/no responde y perdidos, respectivamente.
+
+### Sociodemográficas
+
+El **sexo** de las personas es una variable categórica con nivel de medición tipo nominal *(dummy)*
+
+La **edad** de las personas es continua y con nivel de medición de razón, pero en este reporte se trata como una variable ordinal recodificada en tramos de edad.
+
+El **nivel educacional** alcanzado por las personas tiene un nivel de medición ordinal pero es tratada como una variable ordinal colapsada en agrupaciones que señalan los niveles educativos obtenidos de acuerdo al estándar CINE.
+
+### Laborales
+
+El **grupo ocupacional** se mide a partir de una variable nominal de acuerdo con la clasificación internacional uniforme de ocupaciones CIUO 08 adaptado a Chile.
+
+El **sector de actividad económica** de la empresa donde trabajan las personas se mide a partir de una variable nominal de acuerdo con el Clasificador de Actividades Económicas Nacional para Encuestas Sociodemográficas (CAENES), que es el resultado de la adaptación del Clasificador Chileno de Actividades Económicas CIIU4.CL 2012.
+
+El **tamaño de empresa** en donde trabajan las personas se mide a partir de una variable nominal ordinal, que es resultado de una agrupación realizada de acuerdo con el número de trabajadores que tiene la empresa reportado.
+
+En la Tabla 1 se presentan los posibles valores que pueden tomar las variables utilizadas.
+
+
+## Métodos
+
+Se realizan análisis descriptivos univariados y bivariados, utilizando estimaciones puntuales a nivel poblacional junto con sus respectivas medidas de confiabilidad y error. Además, se emplean estadísticos de asociación entre variables para evaluar hipótesis de diferencias entre promedios, proporciones y frecuencias.
+
+# Resultados
+
+## Capítulo 1: Horas habituales de la primera ocupación en los asalariados formales del sector privado
+
+Desde mediados del 2017 hasta fines del 2023, las horas habituales de trabajo de los asalariados formales del sector privado se han reducido consistentemente. Como se observa en la figura \@ref(fig:promh), si en 2017 el promedio era de 44,6 horas, en el 2023 alcanza las 43,5 horas, representando una disminución de 1 hora en promedio. La tendencia de la serie reafirma lo anterior mostrando que las horas habituales de trabajo se reducen en 0.02 puntos a medida que avanza el tiempo. Además, pareciera que el movimiento de la serie al rededor de la recta muestra oscilaciones por sobre y por debajo de esta de manera constante. Podría afirmarse que esta tendencia es producida por la caída global de las horas habituales de trabajo a causa de la pandemia en el 2020, la cual provocó perdidas de masivas de empleo, una alza en la desocupación y una pérdida de las horas trabajadas, entre otros efectos (OIT, 2021). Sin embargo, en los años 2021-2023 de recuperación paulatina del mercado laboral, se observa que esta tendencia a la baja de hecho continua, sin regresar a los niveles pre-pandemia.
+
+
+
+
+```{r include=FALSE}
+
+t_serie1 <- ts(proc_db[[1]]$media, start = c(2017, 8), end = c(2023, 10), frequency = 12)
+
+n <- nrow(proc_db[[1]])
+time_points <- 1:n
+
+m1 <- tslm(formula = t_serie1 ~ time_points)
+
+g1 <- ggplot(data.frame(time = time(t_serie1), values = as.vector(t_serie1)), aes(x = time, y = values)) +
+  geom_smooth(method = "lm", se = FALSE, color = "#E41A1C", linetype = "longdash", linewidth = 0.7) +
+  geom_line(linetype = "solid", color = "#377EB8", linewidth = 1) +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_continuous(breaks = seq(2017, 2023, by = 1)) +
+  geom_text(aes(label = paste("y =", round(coef(m1)[2], 2), "x +", round(coef(m1)[1], 2))),
+            color = "#E41A1C",
+            x = 2021, y = 44.35, size = 3) +
+  labs(y = "Promedio horas habituales",
+       x = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.") +
+  theme(axis.text.x = element_text(angle = 0,
+                                   vjust = 0.5,
+                                   size = rel(1)))
+
+```
+
+
+```{r promh, echo=FALSE, fig.cap='Evolución promedio horas habituales (2017-2023)'}
+g1
+```
+
+La tendencia general a la disminución de las horas habituales de trabajo también supone cambios en la distribución de los trabajadores entre los distintos tramos y tipos de jornadas laborales. En la figura \@ref(fig:tramh) se muestra la evolución de la distribución porcentual de los asalariados formales del sector privado en distintos tramos de horas habituales de trabajo. Por un lado, y en consonancia con la tendencia general del promedio, se observa una disminución en el porcentaje de trabajadores en los tramos de horas habituales más extensas, como lo son los tramos de 45 y 46 horas o más. Por el otro, aumenta la proporción de trabajadores en jornadas laborales con menos horas habituales de trabajo, como lo son el tramo de las 40 horas y el de 41 a 44 horas. Al respecto, es este último tramo el que ha presentado un mayor crecimiento exponencial desde fines del 2019 a la fecha. Por su parte, el tramo de 40 horas muestra una tendencia sin mayores variaciones pero que se acentúa positivamente a comienzos del 2023. El tramo que ha disminuido en mayor medida corresponde al de las 46 horas o más, con una reducción del 8% (aprox.).De todas maneras, el tramo que más cantidad de trabajadores agrupa en toda la serie corresponde al de las 45 horas habituales, aunque con una considerable reducción del 68% al 63% de los trabajadores asalariados formales del sector privado. 
+
+
+
+
+```{r include=FALSE}
+
+trims <- c(paste0(2017:2023, " son"), paste0(2017:2023, " nde"))
+
+g2 <- left_join(
+  proc_db[[2]][c(1:3, 7, 10)] %>% 
+    filter(hab_t %in% c("40", "41 a 44", "46 o más")) %>% 
+    mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+    dplyr::select(anotrim, hab_t, prop),
+  proc_db[[2]][c(1:3, 7, 10)] %>% 
+    filter(hab_t %in% c("45")) %>% 
+    mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+    dplyr::select(anotrim, prop_45 = prop)) %>% 
+  ggplot(aes(x = anotrim, y = prop, group = hab_t, color = hab_t)) +
+  geom_line(aes(y = prop_45 * 0.1, color = "45 (eje derecho)"), linewidth = 0.8) +  # Crear la línea para prop_45 en el segundo eje
+  geom_line(linewidth = 0.8) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  scale_y_continuous(
+    breaks = seq(0, 20, by = 2), 
+    labels = function(prop){paste0(prop, "%")},
+    sec.axis = sec_axis(~ . * 10, 
+                        breaks = seq(0, 200, by = 25),
+                        labels = function(prop){paste0(prop, "%")})) +
+  scale_x_discrete(breaks = trims) +
+  labs(y = "% trabajadores",
+       x = NULL,
+       color = "Tramos horas habituales",
+       caption = "Fuente: Elaboración propia en base a ENE.")  
+
+```
+
+
+```{r tramh, echo=FALSE, fig.cap='Evolución de la distribución porcentual de trabajadores según tramos de horas habituales (2017-2023)'}
+
+g2
+
+```
+
+Para examinar de mejor manera la evolución de estos tramos, en las figuras \@ref(fig:tendtram1) y \@ref(fig:tendtram2) se muestra la serie y tendencia de estos respectivos tramos entre 2020 y 2023. En los tramos de menores horas habituales (40 y 41 a 44 horas) se aprecia una pendiente marcadamente positiva desde comienzos del 2023 a la actualidad. En detalle, el tramo de 41 a 44 horas muestra una pendiente positiva durante el 2022 ($\beta$ = 0.05), la cual aumenta significativamente considerado como punto de corte el año 2023 ($\beta$ = 0.11). Más notorio es en el caso del tramo de las 40 horas, puesto que hasta el 2022 mostraba una tendencia de hecho negativa ($\beta$ = -0.02), sin embargo, desde inicios del 2023 esta tendencia cambia positivamente, mostrando un crecimiento
+exponencial del porcentaje de trabajadores ($\beta$ = 0.17) en este tramo de horas habituales a medida que avanza el tiempo.
+
+
+```{r include=FALSE}
+
+db <- proc_db[[12]][c(1:3, 7, 10)] %>% 
+  filter(hab_t %in% c("40", "41 a 44") & ano_trimestre >= 2022) %>% 
+  mutate(hab_t = str_replace_all(hab_t, "\\s", "")) %>% 
+  pivot_wider(id_cols = c(ano_trimestre, mes_central, anotrim),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}") %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         time = row_number())
+
+db1 <- db %>% 
+  dplyr::select(prop_40, prop_41a44, time) %>% 
+  filter(time <= 12) %>% 
+  rename(prop_40_1 = prop_40, 
+         prop_41a44_1 = prop_41a44)
+
+db2 <- db %>% 
+  dplyr::select(prop_40, prop_41a44, time) %>% 
+  filter(time >= 13) %>% 
+  rename(prop_40_2 = prop_40, 
+         prop_41a44_2 = prop_41a44)
+
+db3 <- full_join(db1, db2)
+
+db <- full_join(db[c(3,6)], db3)
+
+m2 <- lm(formula = prop_40_1 ~ time, data = db)
+m3 <- lm(formula = prop_40_2 ~ time, data = db)
+
+m4 <- lm(formula = prop_41a44_1 ~ time, data = db)
+m5 <- lm(formula = prop_41a44_2 ~ time, data = db)
+
+g3 <- db %>% 
+  ggplot(aes(x = time)) +
+  geom_vline(xintercept = 12.5, linetype = "solid", color = "black") +
+  geom_line(aes(y = prop_40_1, color = "Color 1"), linetype = "solid", size = 0.7) +
+  geom_smooth(aes(y = prop_40_1, color = "Color 2"), linetype = "longdash", method = "lm", se = FALSE, size = 0.6) +
+  geom_text(aes(label = paste("y =", round(coef(m2)[2], 2), "x +", round(coef(m2)[1], 2))),
+            color = "darkorange",
+            x = 6, y = 6, size = 4) +
+  geom_line(aes(y = prop_40_2, color = "Color 1"), linetype = "solid", size = 0.7) +
+  geom_smooth(aes(y = prop_40_2, color = "Color 2"), linetype = "longdash", method = "lm", se = FALSE, size = 0.6) +
+  geom_text(aes(label = paste("y =", round(coef(m3)[2], 2), "x +", round(coef(m3)[1], 2))),
+            color = "darkorange",
+            x = 17, y = 5.5, size = 4) +
+  geom_line(aes(y = prop_41a44_1, color = "Color 3"), linetype = "solid", size = 0.7) +
+  geom_smooth(aes(y = prop_41a44_1, color = "Color 4"), linetype = "longdash", method = "lm", se = FALSE, size = 0.6) +
+  geom_text(aes(label = paste("y =", round(coef(m4)[2], 2), "x +", round(coef(m4)[1], 2))),
+            color = "#E41A1C",
+            x = 6, y = 10, size = 4) +
+  geom_line(aes(y = prop_41a44_2, color = "Color 3"), linetype = "solid", size = 0.7) +
+  geom_smooth(aes(y = prop_41a44_2, color = "Color 4"), linetype = "longdash", method = "lm", se = FALSE, size = 0.6) +
+  geom_text(aes(label = paste("y =", round(coef(m5)[2], 2), "x +", round(coef(m5)[1], 2))),
+            color = "#E41A1C",
+            x = 17, y = 9, size = 4) +
+  scale_x_continuous(limits = c(1,22), breaks = 1:22, labels = db$anotrim) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, limits = c(2,12), n.breaks = 10)+
+  scale_color_manual(name = NULL,
+                     values = c("Color 1" = "#4DAF4A", "Color 2" = "darkorange", "Color 3" = "#377EB8", "Color 4" = "#E41A1C"),
+                     labels = c("Tramo 40 horas", "Tendencia tramo 40 horas",
+                                "Tramo 41 a 44 horas", "Tendencia tramo 41 a 44 horas"))+
+  guides(color = guide_legend(override.aes = list(linetype = c("solid", "longdash","solid", "longdash")))) +
+  labs(y = "% trabajadores",
+       x = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.") 
+
+
+
+
+```
+
+```{r tendtram1, echo=FALSE, fig.cap='Tendencias porcentaje de trabajadores en tramos de horas habituales 40 y 41 a 44 horas (2020-2023)'}
+g3 +
+  theme(legend.key.size = unit(1, "cm"),
+  legend.key.width = unit(0.2,"cm")
+  )
+
+```
+
+
+Al contrario, en los tramos mayores horas habituales se observa una consistente disminución del porcentaje de trabajadores. Tanto el tramo de 45 horas y de 46 horas o más presentan una tendencia negativa durante el 2022 ($\beta$ = -0.05; $\beta$ = -0.01, resectivamente), la cual se acentúa considerablemente desde el año 2023 ($\beta$ = -0.18; $\beta$ = -0.15, resectivamente), cambio que es especialmente notorio en el tramo de 46 horas o más.
+
+
+```{r include=FALSE}
+
+## Diferencias de proporciones tramos entre 2022 y 2023
+# 40 horas
+
+p_data <- bind_rows(
+ene[[1]] %>% 
+  dplyr::select(anotrim, hab_t, fact_cal) %>% 
+  mutate(hab_t = if_else(hab_t == "40", "40", "Otros")),
+ene[[2]] %>% 
+  dplyr::select(anotrim, hab_t, fact_cal) %>% 
+  mutate(hab_t = if_else(hab_t == "40", "40", "Otros"))
+) %>% na.omit()
+
+p_data$anotrim <- as.factor(p_data$anotrim)
+
+table(p_data$hab_t, p_data$anotrim)
+
+xtab <- as.table(rbind(c(1174, 756),c(18096, 16446))) # invertir para test
+
+dimnames(xtab) <- list(
+  tramo = c("si", "no"),
+  anotrim = c("2023", "2022")
+)
+xtab
+
+p_results <- prop_test(xtab, alternative = "greater", detailed = T) %>% 
+  mutate(tramo = "40")
+
+# 41 a 44
+
+p_data2 <- bind_rows(
+  ene[[1]] %>% 
+    dplyr::select(anotrim, hab_t, fact_cal) %>% 
+    mutate(hab_t = if_else(hab_t == "41 a 44", "41 a 44", "Otros")),
+  ene[[2]] %>% 
+    dplyr::select(anotrim, hab_t, fact_cal) %>% 
+    mutate(hab_t = if_else(hab_t == "41 a 44", "41 a 44", "Otros"))
+) %>% na.omit()
+
+p_data2$anotrim <- as.factor(p_data2$anotrim)
+
+table(p_data2$hab_t, p_data2$anotrim)
+
+xtab <- as.table(rbind(c(2322, 2042),c(16948, 15160))) # invertir para test
+
+dimnames(xtab) <- list(
+  tramo = c("si", "no"),
+  anotrim = c("2023", "2022")
+)
+
+xtab
+
+p_results <- bind_rows(
+  p_results,
+prop_test(xtab, alternative = "greater", detailed = T) %>% 
+  mutate(tramo = "41 a 44")
+)
+
+# 45
+
+p_data3 <- bind_rows(
+  ene[[1]] %>% 
+    dplyr::select(anotrim, hab_t, fact_cal) %>% 
+    mutate(hab_t = if_else(hab_t == "45", "45", "Otros")),
+  ene[[2]] %>% 
+    dplyr::select(anotrim, hab_t, fact_cal) %>% 
+    mutate(hab_t = if_else(hab_t == "45", "45", "Otros"))
+) %>% na.omit()
+
+p_data3$anotrim <- as.factor(p_data3$anotrim)
+
+table(p_data3$hab_t, p_data3$anotrim)
+
+xtab <- as.table(rbind(c(11852, 10966),c(7418, 6236))) # invertir para test
+
+dimnames(xtab) <- list(
+  tramo = c("si", "no"),
+  anotrim = c("2023", "2022")
+)
+
+xtab
+
+p_results <- bind_rows(
+  p_results,
+  prop_test(xtab, alternative = "less", detailed = T) %>% 
+    mutate(tramo = "45")
+)
+
+# 46 o mas
+
+p_data4 <- bind_rows(
+  ene[[1]] %>% 
+    dplyr::select(anotrim, hab_t, fact_cal) %>% 
+    mutate(hab_t = if_else(hab_t == "46 o más", "46 o más", "Otros")),
+  ene[[2]] %>% 
+    dplyr::select(anotrim, hab_t, fact_cal) %>% 
+    mutate(hab_t = if_else(hab_t == "46 o más", "46 o más", "Otros"))
+) %>% na.omit()
+
+p_data4$anotrim <- as.factor(p_data4$anotrim)
+
+table(p_data4$hab_t, p_data4$anotrim)
+
+xtab <- as.table(rbind(c(2107, 1861),c(17163, 15341))) # invertir para test
+
+dimnames(xtab) <- list(
+  tramo = c("si", "no"),
+  anotrim = c("2023", "2022")
+)
+
+xtab
+
+p_results <- bind_rows(
+  p_results,
+  prop_test(xtab, alternative = "less", detailed = T) %>% 
+    mutate(tramo = "46 o más")
+)
+
+p_results <- p_results %>% 
+  mutate(alternative = if_else(alternative == "greater", "Mayor que", "Menor que")) %>% 
+  dplyr::select(
+    Tramo = tramo, 
+    `Proporción 2023` = estimate1,
+    `Proporción 2022` = estimate2,
+    Estadístico = statistic, 
+    p, 
+    `Dirección` = alternative) 
+
+```
+
+
+```{r echo=FALSE}
+nice_table(p_results, highlight = T, width = 1)
+```
+
+
+
+
+```{r include=FALSE}
+
+db <- proc_db[[12]][c(1:3, 7, 10)] %>% 
+  filter(hab_t %in% c("45", "46 o más") & ano_trimestre >= 2022) %>% 
+  mutate(hab_t = str_replace_all(hab_t, "\\s", "")) %>% 
+  pivot_wider(id_cols = c(ano_trimestre, mes_central, anotrim),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}") %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         time = row_number())
+
+db1 <- db %>% 
+  dplyr::select(prop_45, prop_46omás, time) %>% 
+  filter(time <= 12) %>% 
+  rename(prop_45_1 = prop_45, 
+         prop_46omás_1 = prop_46omás)
+
+db2 <- db %>% 
+  dplyr::select(prop_45, prop_46omás, time) %>% 
+  filter(time >= 13) %>% 
+  rename(prop_45_2 = prop_45, 
+         prop_46omás_2 = prop_46omás)
+
+db3 <- full_join(db1, db2)
+
+db <- full_join(db[c(3,6)], db3)
+
+m6 <- lm(formula = prop_45_1 ~ time, data = db)
+m7 <- lm(formula = prop_45_2 ~ time, data = db)
+
+m8 <- lm(formula = prop_46omás_1 ~ time, data = db)
+m9 <- lm(formula = prop_46omás_2 ~ time, data = db)
+
+g4.1 <- db %>% 
+  dplyr::select(anotrim, time, starts_with("prop_45")) %>% 
+  ggplot(aes(x = time)) +
+  geom_vline(xintercept = 12.5, linetype = "solid", color = "black") +
+  geom_smooth(aes(y = prop_45_1, color = "Color 2"), 
+              linetype = "longdash", method = "lm", se = FALSE, size = 0.6) +
+  geom_line(aes(y = prop_45_1, color = "Color 1"), linetype = "solid", size = 0.7) +
+  geom_text(aes(label = paste("y =", round(coef(m6)[2], 2), "x +", round(coef(m6)[1], 2))),
+            color = "#E41A1C",
+            x = 6, y = 68, size = 3) +
+  geom_smooth(aes(y = prop_45_2, color = "Color 2"), 
+              linetype = "longdash", method = "lm", se = FALSE, size = 0.6) +
+  geom_line(aes(y = prop_45_2, color = "Color 1"), linetype = "solid", size = 0.7) +
+  geom_text(aes(label = paste("y =", round(coef(m7)[2], 2), "x +", round(coef(m7)[1], 2))),
+            color = "#E41A1C",
+            x = 19, y = 67, size = 3) +
+  scale_x_continuous(limits = c(1,22), breaks = 1:22, labels = db$anotrim) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, limits = c(60, 70), breaks = seq(60, 70, by = 2))+
+  scale_color_manual(name = NULL,
+                     values = c("Color 1" = "#377EB8", "Color 2" = "#E41A1C"),
+                     labels = c("Tramo 45 horas", "Tendencia tramo 45 horas"))+
+  guides(color = guide_legend(override.aes = list(linetype = c("solid", "longdash")))) +
+  labs(y = "% trabajadores",
+       x = NULL) +
+  theme(axis.text.x = element_text(angle = 90,
+                                    vjust = 0.5,
+                                    size = rel(0.8)))
+  
+  
+g4.2 <- db %>% 
+  dplyr::select(anotrim, time, starts_with("prop_46")) %>% 
+  ggplot(aes(x = time)) +
+  geom_vline(xintercept = 12.5, linetype = "solid", color = "black") +
+  geom_smooth(aes(y = prop_46omás_1, color = "Color 2"), 
+              linetype = "longdash", method = "lm", se = FALSE, size = 0.6) +
+  geom_line(aes(y = prop_46omás_1, color = "Color 1"), linetype = "solid", size = 0.7) +
+  geom_text(aes(label = paste("y =", round(coef(m8)[2], 2), "x +", round(coef(m8)[1], 2))),
+            color = "darkorange",
+            x = 7, y = 12.5, size = 3) +
+  geom_smooth(aes(y = prop_46omás_2, color = "Color 2"), 
+              linetype = "longdash", method = "lm", se = FALSE, size = 0.6) +
+  geom_line(aes(y = prop_46omás_2, color = "Color 1"), linetype = "solid", size = 0.7) +
+  geom_text(aes(label = paste("y =", round(coef(m9)[2], 2), "x +", round(coef(m9)[1], 2))),
+            color = "darkorange",
+            x = 19, y = 12, size = 3) +
+  scale_x_continuous(limits = c(1,22), breaks = 1:22, labels = db$anotrim) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, limits = c(9, 14), breaks = seq(9, 14, by = 1))+
+  scale_color_manual(name = NULL,
+                     values = c("Color 1" = "#4DAF4A", "Color 2" = "darkorange"),
+                     labels = c("Tramo 46 horas o más", "Tendencia tramo 46 horas o más"))+
+  guides(color = guide_legend(override.aes = list(linetype = c("solid", "longdash")))) +
+  labs(y = NULL,
+       x = NULL)  +
+  theme(axis.text.x = element_text(angle = 90,
+                                    vjust = 0.5,
+                                    size = rel(0.8)))
+
+g4 <- plot_grid(g4.1, g4.2)
+
+
+
+```
+
+```{r tendtram2, echo=FALSE, fig.cap='Tendencias porcentaje de trabajadores en tramos de horas habituales 45 y 46 o más horas (2020-2023)'}
+g4+
+  theme(legend.key.size = unit(1, "cm"),
+  legend.key.width = unit(0.2,"cm")
+  )
+```
+
+
+```{r include=FALSE}
+
+df <- proc_db[[6]] %>% 
+  select(ano_trimestre, mes_central, sexo, media) %>% 
+  mutate(sexo = if_else(sexo == 1, "Hombres", "Mujeres"))
+
+df_hombres <- df[df$sexo == "Hombres", ]
+df_mujeres <- df[df$sexo == "Mujeres", ]
+
+serie_temporal_hombres <- ts(df_hombres$media, 
+                             start = c(df_hombres$ano_trimestre[1], df_hombres$mes_central[1]), 
+                             frequency = 12)
+
+serie_temporal_mujeres <- ts(df_mujeres$media, 
+                             start = c(df_mujeres$ano_trimestre[1], df_mujeres$mes_central[1]), 
+                             frequency = 12)
+
+df_combined <- bind_rows(
+  data.frame(sexo = "Hombres", time = time(serie_temporal_hombres), value = as.numeric(serie_temporal_hombres)),
+  data.frame(sexo = "Mujeres", time = time(serie_temporal_mujeres), value = as.numeric(serie_temporal_mujeres))
+)
+
+
+
+n <- nrow(df_combined[df_combined$sexo=="Mujeres",])
+time_points <- 1:n
+
+m10 <- tslm(formula =  serie_temporal_hombres ~ time_points)
+m11 <- tslm(formula =  serie_temporal_mujeres ~ time_points)
+
+
+g5 <- ggplot(df_combined, aes(x = time, y = value, color = sexo)) +
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ x, aes(group = sexo), linetype = "longdash", linewidth = 0.7) +
+  geom_line(linetype = "solid", linewidth = 1) +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_continuous(breaks = seq(2020, 2023, by = 1)) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  geom_text(aes(label = paste("y =", round(coef(m10)[2], 2), "x +", round(coef(m10)[1], 2))),
+            color = "#E41A1C",
+            x = 2022, y = 45, size = 3) +
+  geom_text(aes(label = paste("y =", round(coef(m11)[2], 2), "x +", round(coef(m11)[1], 2))),
+            color = "#377EB8",
+            x = 2022, y = 43, size = 3) +
+  labs(y = "Promedio horas habituales",
+       x = NULL,
+       color = "Sexo",
+       caption = "Fuente: Elaboración propia en base a ENE.") +
+  theme(axis.text.x = element_text(angle = 0,
+                                   vjust = 0.5,
+                                   size = rel(1)))
+
+
+
+df <- proc_db[[13]] %>% 
+  filter(hab_t %in% c("40", "41 a 44", "45", "46 o más")) %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  pivot_wider(id_cols = c(anotrim, sexo),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}")
+
+df$dif_40 <- NA
+df$dif_41_44 <- NA
+df$dif_45 <- NA
+df$dif_46_mas <- NA
+
+df[25:nrow(df),7:10] <- df[25:nrow(df),3:6] - df[1:(nrow(df)-24),3:6]
+
+df <- df %>% 
+  select(anotrim, sexo, starts_with("dif")) %>% 
+  na.omit()
+
+df
+
+df$acum_40 <- ave(df$dif_40, df$sexo, FUN = cumsum)
+df$acum_41_44 <- ave(df$dif_41_44, df$sexo, FUN = cumsum)
+df$acum_45 <- ave(df$dif_45, df$sexo, FUN = cumsum)
+df$acum_46_mas <- ave(df$dif_46_mas, df$sexo, FUN = cumsum)
+
+g6 <- df %>% 
+  select(anotrim, sexo, starts_with("acum")) %>% 
+  pivot_longer(cols = -c(1,2),
+               names_to = "names",
+               values_to = "value") %>% 
+  na.omit() %>% 
+  mutate(sexo = if_else(sexo == 1, "Hombres", "Mujeres"),
+         names = case_when(names == "acum_40" ~ "40",
+                           names == "acum_41_44" ~ "41 a 44",
+                           names == "acum_45" ~ "45",
+                           names == "acum_46_mas" ~ "46 o más")) %>% 
+  ggplot(aes(x = anotrim, y = value, group = names, color = names)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 mam"), linetype = "dashed") +
+  geom_hline(aes(yintercept = 0), linetype = "solid", color = "black")+
+  facet_wrap(~sexo) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     n.breaks = 10) +
+  scale_x_discrete(breaks = c(trims, "2023 mam")) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  labs(y = "Variación anual acumulada",
+       x = NULL,
+       color = "Tramos horas habituales",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+
+```
+
+Aunque la tendencia general del promedio de horas habituales es hacia la disminución, al descomponer esta evolución entre hombres y mujeres se observan tendecias divergentes (ver figura \@ref(fig:promhsexo)). Desde 2020 a la actualidad, los hombres muestran una reducción de las horas habituales promedio, con una pendiente negativa y con un coeficiente pequeño. Por su parte, si bien las mujeres muestran un nulo cambio entre los puntos 2022 y 2023, si presentan variaciones relevantes durante el periodo que producen una tendencia ligeramente positiva. 
+
+
+
+```{r promhsexo, echo=FALSE, fig.cap='Evolución promedio horas habituales según sexo (2020-2023)'}
+g5
+```
+
+
+En la figura \@ref(fig:tramhsexo) se muestra la variación anual acumulada del porcentaje de trabajadores en los tramos de horas habituales, diferenciados por sexo. Ambos grupos muestran una clara disminución en el porcentaje de trabajadores en tramos de 45 o 46 horas o más, mientras que los tramos de 40 y 41 a 44 horas presentan tendencias positivas.
+
+De todas maneras, se observan diferencias entre sexos. Por un lado, la notable disminución en el tramo de 46 horas o más entre los hombres podría explicarse por su mayor representación entre los ocupados asalariados, lo que también justificaría la ausencia de valores negativos en el tramo de 45 horas para los hombres. Además, el tramo de 41 a 44 horas exhibe una tendencia positiva a lo largo de la serie, registrando el mayor crecimiento porcentual entre los hombres. Aunque en 2021 el tramo de 40 horas tenía valores negativos, a partir de 2022 ha experimentado un cambio positivo que se intensifica a principios de 2023, acercándose a las variaciones anuales del tramo de 45 horas, que es el que concentra a la mayor cantidad de trabajadores. Por otro lado, los tramos de 40 y de 41 a 44 horas han experimentando un crecimineto más pronunciado entre las mujeres. De hecho, el tramo de las 45 horas toma valores negativos en este grupo, lo que implica que el crecimiento porcentual de las mujeres asalariadas formales del sector privado se ha concentrado en los tramos de menores horas. En detalle, el tramo de 41 a 44 horas exhibe una tendencia positiva a lo largo de la serie para este grupo, mientras que el tramo de 40 horas, inicialmente con valores negativos hasta finales de 2022, ha experimentado un crecimiento positivo desde entonces, incluso superando al tramo de 41 a 44 horas en los últimos meses de 2023. Para validar esta tendencia, será necesario examinar las variaciones anuales en estos tramos en los trimestres venideros.
+
+
+```{r tramhsexo, echo=FALSE, fig.cap='Tendencias porcentaje de trabajadores en tramos de horas habituales según sexo (2020-2023)'}
+g6
+```
+
+
+
+
+
+
+```{r include=FALSE}
+
+g7 <- proc_db[[7]] %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>%
+  ggplot(aes(x = anotrim, y = media, color = edad_t, group = edad_t)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 mam"), linetype = "dashed") +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_discrete(breaks = c(trims, "2023 mam")) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  labs(y = "Promedio horas habituales",
+       x = NULL,
+       color = "Edad",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+
+df <- proc_db[[14]] %>% 
+  filter(hab_t %in% c("40", "41 a 44", "45", "46 o más")) %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  pivot_wider(id_cols = c(anotrim, edad_t),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}")
+
+df$dif_40 <- NA
+df$dif_41_44 <- NA
+df$dif_45 <- NA
+df$dif_46_mas <- NA
+
+df[49:nrow(df),7:10] <- df[49:nrow(df),3:6] - df[1:(nrow(df)-48),3:6]
+
+df <- df %>% 
+  select(anotrim, edad_t, starts_with("dif")) %>% 
+  na.omit()
+
+df
+
+df$acum_40 <- ave(df$dif_40, df$edad_t, FUN = cumsum)
+df$acum_41_44 <- ave(df$dif_41_44, df$edad_t, FUN = cumsum)
+df$acum_45 <- ave(df$dif_45, df$edad_t, FUN = cumsum)
+df$acum_46_mas <- ave(df$dif_46_mas, df$edad_t, FUN = cumsum)
+
+
+g8 <- df %>% 
+  select(anotrim, edad_t, starts_with("acum")) %>% 
+  pivot_longer(cols = -c(1,2),
+               names_to = "names",
+               values_to = "value") %>% 
+  na.omit() %>% 
+  mutate(names = case_when(names == "acum_40" ~ "40",
+                           names == "acum_41_44" ~ "41 a 44",
+                           names == "acum_45" ~ "45",
+                           names == "acum_46_mas" ~ "46 o más")) %>% 
+  ggplot(aes(x = anotrim, y = value, group = names, color = names)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 mam"), linetype = "dashed") +
+  geom_hline(aes(yintercept = 0), linetype = "solid", color = "black")+
+  facet_wrap(~edad_t) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     n.breaks = 5) +
+  scale_x_discrete(breaks = c(trims, "2023 mam")) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  labs(y = "Variación anual acumulada",
+       x = NULL,
+       color = "Tramos horas habituales",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+
+```
+
+
+```{r echo=FALSE, fig.cap='Evolución promedio horas habituales según tramo etario (2020-2023)'}
+g7
+```
+
+```{r echo=FALSE, fig.asp=0.9, out.height='90%', fig.cap='Tendencias porcentaje de trabajadores en tramos de horas habituales según tramo etario (2020-2023)'}
+g8
+```
+
+```{r include=FALSE}
+
+
+g9 <- proc_db[[8]] %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  na.omit() %>% 
+  ggplot(aes(x = anotrim, y = media, group = cine, color = cine)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 mam"), linetype = "dashed") +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_discrete(breaks = c(trims, "2023 mam")) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  labs(y = "Promedio horas habituales",
+       x = NULL,
+       color = "Nivel educativo",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+df <- proc_db[[15]] %>% 
+  filter(hab_t %in% c("40", "41 a 44", "45", "46 o más")) %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  pivot_wider(id_cols = c(anotrim, cine),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}")
+
+df$dif_40 <- NA
+df$dif_41_44 <- NA
+df$dif_45 <- NA
+df$dif_46_mas <- NA
+
+df[49:nrow(df),7:10] <- df[49:nrow(df),3:6] - df[1:(nrow(df)-48),3:6]
+
+df <- df %>% 
+  select(anotrim, cine, starts_with("dif")) %>% 
+  na.omit()
+
+df
+
+df$acum_40 <- ave(df$dif_40, df$cine, FUN = cumsum)
+df$acum_41_44 <- ave(df$dif_41_44, df$cine, FUN = cumsum)
+df$acum_45 <- ave(df$dif_45, df$cine, FUN = cumsum)
+df$acum_46_mas <- ave(df$dif_46_mas, df$cine, FUN = cumsum)
+
+
+g10 <- df %>% 
+  select(anotrim, cine, starts_with("acum")) %>% 
+  pivot_longer(cols = -c(1,2),
+               names_to = "names",
+               values_to = "value") %>% 
+  na.omit() %>% 
+  mutate(names = case_when(names == "acum_40" ~ "40",
+                           names == "acum_41_44" ~ "41 a 44",
+                           names == "acum_45" ~ "45",
+                           names == "acum_46_mas" ~ "46 o más")) %>% 
+  ggplot(aes(x = anotrim, y = value, group = names, color = names)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 mam"), linetype = "dashed") +
+  geom_hline(aes(yintercept = 0), linetype = "solid", color = "black")+
+  facet_wrap(~cine) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     n.breaks = 5) +
+  scale_x_discrete(breaks = c(trims, "2023 mam")) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  labs(y = "Variación anual acumulada",
+       x = NULL,
+       color = "Tramos horas habituales",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+
+
+```
+
+```{r echo=FALSE, fig.cap='Evolución promedio horas habituales según nivel educacional (2020-2023)'}
+g9
+```
+
+```{r echo=FALSE, fig.asp=0.9, out.height='90%', fig.cap='Tendencias porcentaje de trabajadores en tramos de horas habituales según nivel educacional (2020-2023)'}
+g10
+```
+
+
+
+```{r include=FALSE}
+
+g11 <- proc_db[[9]] %>% 
+  select(anotrim, ciuo08, media, media_low, media_upp) %>% 
+  filter(ciuo08 != "Otros no identificados") %>% 
+  na.omit() %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         ciuo08 = as.character(ciuo08),
+         ciuo08 = str_trunc(ciuo08, 30, "right"),
+         ciuo08 = factor(ciuo08, levels = unique(ciuo08))) %>% 
+  ggplot(aes(x = anotrim, y = media, group = 1)) +
+  geom_line(linewidth = 1, color = "#377EB8") +
+  geom_ribbon(aes(ymin = media_low, ymax = media_upp), alpha = 0.1, fill = "blue") +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_discrete(breaks = trims) +
+  facet_wrap(~ciuo08) +
+  labs(y = "Promedio horas habituales",
+       x = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.")
+df <- proc_db[[16]] %>% 
+  filter(hab_t %in% c("40", "41 a 44", "45", "46 o más") & ciuo08 != "Otros no identificados") %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  pivot_wider(id_cols = c(anotrim, ciuo08),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}")
+
+df$dif_40 <- NA
+df$dif_41_44 <- NA
+df$dif_45 <- NA
+df$dif_46_mas <- NA
+
+df[109:nrow(df),7:10] <- df[109:nrow(df),3:6] - df[1:(nrow(df)-108),3:6]
+
+df <- df %>% 
+  select(anotrim, ciuo08, starts_with("dif")) %>% 
+  na.omit()
+
+df
+
+df$acum_40 <- ave(df$dif_40, df$ciuo08, FUN = cumsum)
+df$acum_41_44 <- ave(df$dif_41_44, df$ciuo08, FUN = cumsum)
+df$acum_45 <- ave(df$dif_45, df$ciuo08, FUN = cumsum)
+df$acum_46_mas <- ave(df$dif_46_mas, df$ciuo08, FUN = cumsum)
+
+
+g12 <- df %>% 
+  select(anotrim, ciuo08, starts_with("acum")) %>% 
+  pivot_longer(cols = -c(1,2),
+               names_to = "names",
+               values_to = "value") %>% 
+  na.omit() %>% 
+  mutate(names = case_when(names == "acum_40" ~ "40",
+                           names == "acum_41_44" ~ "41 a 44",
+                           names == "acum_45" ~ "45",
+                           names == "acum_46_mas" ~ "46 o más"),
+         ciuo08 = as.character(ciuo08),
+         ciuo08 = str_trunc(ciuo08, 30, "right"),
+         ciuo08 = factor(ciuo08, levels = unique(ciuo08))) %>% 
+  ggplot(aes(x = anotrim, y = value, group = names, color = names)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 mam"), linetype = "dashed") +
+  geom_hline(aes(yintercept = 0), linetype = "solid", color = "black")+
+  facet_wrap(~ciuo08) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     breaks = seq(-50, 100, by = 25)) +
+  scale_x_discrete(breaks = c(trims, "2023 mam")) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  labs(y = "Variación anual acumulada",
+       x = NULL,
+       color = "Tramos horas habituales",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+
+```
+
+```{r echo=FALSE, fig.asp=0.9, out.height='90%', fig.cap='Evolución promedio horas habituales según grupo ocupacional (2020-2023)'}
+g11
+```
+
+```{r echo=FALSE, fig.asp=1, out.height='100%', fig.cap='Tendencias porcentaje de trabajadores en tramos de horas habituales según grupo ocupacional (2020-2023)'}
+g12
+```
+
+
+
+```{r include=FALSE}
+
+
+g13 <- proc_db[[10]] %>% 
+  select(anotrim, tam_emp, media, media_low, media_upp) %>% 
+  na.omit() %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  ggplot(aes(x = anotrim, y = media, group = 1)) +
+  geom_line(linewidth = 1, color = "#377EB8") +
+  geom_ribbon(aes(ymin = media_low, ymax = media_upp), alpha = 0.1, fill = "blue") +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_discrete(breaks = trims) +
+  facet_wrap(~tam_emp, ncol = 2) +
+  labs(y = "Promedio horas habituales",
+       x = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+df <- proc_db[[18]] %>% 
+  filter(hab_t %in% c("40", "41 a 44", "45", "46 o más")) %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  pivot_wider(id_cols = c(anotrim, tam_emp),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}")
+
+df$dif_40 <- NA
+df$dif_41_44 <- NA
+df$dif_45 <- NA
+df$dif_46_mas <- NA
+
+df[61:nrow(df),7:10] <- df[61:nrow(df),3:6] - df[1:(nrow(df)-60),3:6]
+
+df <- df %>% 
+  select(anotrim, tam_emp, starts_with("dif")) %>% 
+  na.omit()
+
+df
+
+df$acum_40 <- ave(df$dif_40, df$tam_emp, FUN = cumsum)
+df$acum_41_44 <- ave(df$dif_41_44, df$tam_emp, FUN = cumsum)
+df$acum_45 <- ave(df$dif_45, df$tam_emp, FUN = cumsum)
+df$acum_46_mas <- ave(df$dif_46_mas, df$tam_emp, FUN = cumsum)
+
+
+g14 <- df %>% 
+  select(anotrim, tam_emp, starts_with("acum")) %>% 
+  pivot_longer(cols = -c(1,2),
+               names_to = "names",
+               values_to = "value") %>% 
+  na.omit() %>% 
+  mutate(names = case_when(names == "acum_40" ~ "40",
+                           names == "acum_41_44" ~ "41 a 44",
+                           names == "acum_45" ~ "45",
+                           names == "acum_46_mas" ~ "46 o más")) %>% 
+  ggplot(aes(x = anotrim, y = value, group = names, color = names)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 mam"), linetype = "dashed") +
+  geom_hline(aes(yintercept = 0), linetype = "solid", color = "black")+
+  facet_wrap(~tam_emp, ncol = 2) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     breaks = seq(-50, 100, by = 25)) +
+  scale_x_discrete(breaks = c(trims, "2023 mam")) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  labs(y = "Variación anual acumulada",
+       x = NULL,
+       color = "Tramos horas habituales",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+```
+
+```{r echo=FALSE, fig.asp=0.9, out.height='90%', fig.cap='Evolución promedio horas habituales según tamaño de empresa (2020-2023)'}
+g13
+```
+
+```{r echo=FALSE, fig.asp=0.9, out.height='90%', fig.cap='Tendencias porcentaje de trabajadores en tramos de horas habituales según tamaño de empresa (2020-2023)'}
+g14
+```
+
+Hacer tabla de promedio horas por rama pues no hay grandes diferencias por rama
+
+La var anual acumulada de rama no dice nada y hay mucho error de estimacion (fiabilidad)
+
+
+
+
+
+## Capítulo 2: Total horas habituales trabajadas en los asalariados formales del sector privado
+
+```{r include=FALSE}
+
+t_serie2 <- ts(proc_db[[3]]$media, start = c(2017, 8), end = c(2023, 10), frequency = 12)
+
+n <- nrow(proc_db[[3]])
+time_points <- 1:n
+
+m12 <- tslm(formula = t_serie2 ~ time_points)
+
+g15 <- ggplot(data.frame(time = time(t_serie2), values = as.vector(t_serie2)), aes(x = time, y = values)) +
+  geom_smooth(method = "lm", se = FALSE, color = "#E41A1C", linetype = "longdash", linewidth = 0.7) +
+  geom_line(linetype = "solid", color = "#377EB8", linewidth = 1) +
+  scale_y_continuous(labels = decimales, n.breaks = 6) +
+  scale_x_continuous(breaks = seq(2017, 2023, by = 1)) +
+  geom_text(aes(label = paste("y =", round(coef(m12)[2], 2), "x +", round(coef(m12)[1], 2))),
+            color = "#E41A1C",
+            x = 2021, y = 44.7, size = 3) +
+  labs(y = "Promedio MATHO",
+       x = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.") +
+  theme(axis.text.x = element_text(angle = 0,
+                                   vjust = 0.5,
+                                   size = rel(1)))
+
+```
+
+
+```{r echo=FALSE, fig.cap='Evolución promedio medida agregada horas habituales totales (2020-2023)'}
+g15
+```
+
+
+```{r include=FALSE}
+
+trims <- c(paste0(2017:2023, " son"), paste0(2017:2023, " nde"))
+
+g16 <- left_join(
+  proc_db[[4]][c(1:3, 7, 10)] %>% 
+    filter(hab_t_dos %in% c("40", "41 a 44", "46 o más")) %>% 
+    mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+    dplyr::select(anotrim, hab_t_dos, prop),
+  proc_db[[4]][c(1:3, 7, 10)] %>% 
+    filter(hab_t_dos %in% c("45")) %>% 
+    mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+    dplyr::select(anotrim, prop_45 = prop)) %>% 
+  ggplot(aes(x = anotrim, y = prop, group = hab_t_dos, color = hab_t_dos)) +
+  geom_line(aes(y = prop_45 * 0.1, color = "45 (eje derecho)"), linewidth = 0.8) +  # Crear la línea para prop_45 en el segundo eje
+  geom_line(linewidth = 0.8) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  scale_y_continuous(
+    breaks = seq(0, 25, by = 2), 
+    labels = function(prop){paste0(prop, "%")},
+    sec.axis = sec_axis(~ . * 10, 
+                        breaks = seq(0, 225, by = 25),
+                        labels = function(prop){paste0(prop, "%")})) +
+  scale_x_discrete(breaks = trims) +
+  labs(y = "% trabajadores",
+       x = NULL,
+       color = "Tramos MATHO",
+       caption = "Fuente: Elaboración propia en base a ENE.")  
+
+```
+
+
+```{r echo=FALSE, fig.cap='Evolución de la distribución porcentual de trabajadores según tramos de medida agregada de horas habituales totales (2017-2023)'}
+
+g16
+
+```
+
+
+
+```{r include=FALSE}
+
+db <- proc_db[[27]][c(1:3, 7, 10)] %>% 
+  filter(hab_t_dos %in% c("40", "41 a 44") & ano_trimestre >= 2022) %>% 
+  mutate(hab_t_dos = str_replace_all(hab_t_dos, "\\s", "")) %>% 
+  pivot_wider(id_cols = c(ano_trimestre, mes_central, anotrim),
+              names_from = hab_t_dos,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t_dos}") %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         time = row_number())
+
+db1 <- db %>% 
+  dplyr::select(prop_40, prop_41a44, time) %>% 
+  filter(time <= 12) %>% 
+  rename(prop_40_1 = prop_40, 
+         prop_41a44_1 = prop_41a44)
+
+db2 <- db %>% 
+  dplyr::select(prop_40, prop_41a44, time) %>% 
+  filter(time >= 13) %>% 
+  rename(prop_40_2 = prop_40, 
+         prop_41a44_2 = prop_41a44)
+
+db3 <- full_join(db1, db2)
+
+db <- full_join(db[c(3,6)], db3)
+
+m13 <- lm(formula = prop_40_1 ~ time, data = db)
+m14 <- lm(formula = prop_40_2 ~ time, data = db)
+
+m15 <- lm(formula = prop_41a44_1 ~ time, data = db)
+m16 <- lm(formula = prop_41a44_2 ~ time, data = db)
+
+g17 <- db %>% 
+  ggplot(aes(x = time)) +
+  geom_vline(xintercept = 12.5, linetype = "solid", color = "black") +
+  geom_line(aes(y = prop_40_1, color = "Color 1"), linetype = "solid", size = 0.7) +
+  geom_smooth(aes(y = prop_40_1, color = "Color 2"), linetype = "longdash", method = "lm", se = FALSE, size = 0.6) +
+  geom_text(aes(label = paste("y =", round(coef(m13)[2], 2), "x +", round(coef(m13)[1], 2))),
+            color = "darkorange",
+            x = 6, y = 6, size = 4) +
+  geom_line(aes(y = prop_40_2, color = "Color 1"), linetype = "solid", size = 0.7) +
+  geom_smooth(aes(y = prop_40_2, color = "Color 2"), linetype = "longdash", method = "lm", se = FALSE, size = 0.6) +
+  geom_text(aes(label = paste("y =", round(coef(m14)[2], 2), "x +", round(coef(m14)[1], 2))),
+            color = "darkorange",
+            x = 17, y = 6.5, size = 4) +
+  geom_line(aes(y = prop_41a44_1, color = "Color 3"), linetype = "solid", size = 0.7) +
+  geom_smooth(aes(y = prop_41a44_1, color = "Color 4"), linetype = "longdash", method = "lm", se = FALSE, size = 0.6) +
+  geom_text(aes(label = paste("y =", round(coef(m15)[2], 2), "x +", round(coef(m15)[1], 2))),
+            color = "#E41A1C",
+            x = 6, y = 8.5, size = 4) +
+  geom_line(aes(y = prop_41a44_2, color = "Color 3"), linetype = "solid", size = 0.7) +
+  geom_smooth(aes(y = prop_41a44_2, color = "Color 4"), linetype = "longdash", method = "lm", se = FALSE, size = 0.6) +
+  geom_text(aes(label = paste("y =", round(coef(m16)[2], 2), "x +", round(coef(m16)[1], 2))),
+            color = "#E41A1C",
+            x = 17, y = 9, size = 4) +
+  scale_x_continuous(limits = c(1,22), breaks = 1:22, labels = db$anotrim) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, limits = c(2,11), n.breaks = 6)+
+  scale_color_manual(name = NULL,
+                     values = c("Color 1" = "#4DAF4A", "Color 2" = "darkorange", "Color 3" = "#377EB8", "Color 4" = "#E41A1C"),
+                     labels = c("Tramo 40 horas", "Tendencia tramo 40 hora",
+                                "Tramo 41 a 44 horas", "Tendencia tramo 41 a 44 horas"))+
+  guides(color = guide_legend(overrideaes = list(linetype = c("solid", "longdash","solid", "longdash")))) +
+  labs(y = "% trabajadores",
+       x = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.") 
+
+
+
+
+```
+
+```{r echo=FALSE, fig.cap='Tendencias porcentaje de trabajadores en tramos de medida agregada de horas habituales totales 40 y 41 a 44 horas (2020-2023)'}
+g17+
+  theme(legend.key.size = unit(1, "cm"),
+  legend.key.width = unit(0.2,"cm")
+  )
+
+```
+
+```{r include=FALSE}
+
+db <- proc_db[[27]][c(1:3, 7, 10)] %>% 
+  filter(hab_t_dos %in% c("45", "46 o más") & ano_trimestre >= 2022) %>% 
+  mutate(hab_t_dos = str_replace_all(hab_t_dos, "\\s", "")) %>% 
+  pivot_wider(id_cols = c(ano_trimestre, mes_central, anotrim),
+              names_from = hab_t_dos,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t_dos}") %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         time = row_number())
+
+db1 <- db %>% 
+  dplyr::select(prop_45, prop_46omás, time) %>% 
+  filter(time <= 12) %>% 
+  rename(prop_45_1 = prop_45, 
+         prop_46omás_1 = prop_46omás)
+
+db2 <- db %>% 
+  dplyr::select(prop_45, prop_46omás, time) %>% 
+  filter(time >= 13) %>% 
+  rename(prop_45_2 = prop_45, 
+         prop_46omás_2 = prop_46omás)
+
+db3 <- full_join(db1, db2)
+
+db <- full_join(db[c(3,6)], db3)
+
+m17 <- lm(formula = prop_45_1 ~ time, data = db)
+m18 <- lm(formula = prop_45_2 ~ time, data = db)
+
+m19 <- lm(formula = prop_46omás_1 ~ time, data = db)
+m20 <- lm(formula = prop_46omás_2 ~ time, data = db)
+
+g18.1 <- db %>% 
+  dplyr::select(anotrim, time, starts_with("prop_45")) %>% 
+  ggplot(aes(x = time)) +
+  geom_vline(xintercept = 12.5, linetype = "solid", color = "black") +
+  geom_smooth(aes(y = prop_45_1, color = "Color 2"), 
+              linetype = "longdash", method = "lm", se = FALSE, size = 0.6) +
+  geom_line(aes(y = prop_45_1, color = "Color 1"), linetype = "solid", size = 0.7) +
+  geom_text(aes(label = paste("y =", round(coef(m17)[2], 2), "x +", round(coef(m17)[1], 2))),
+            color = "#E41A1C",
+            x = 6, y = 64, size = 3) +
+  geom_smooth(aes(y = prop_45_2, color = "Color 2"), 
+              linetype = "longdash", method = "lm", se = FALSE, size = 0.6) +
+  geom_line(aes(y = prop_45_2, color = "Color 1"), linetype = "solid", size = 0.7) +
+  geom_text(aes(label = paste("y =", round(coef(m18)[2], 2), "x +", round(coef(m18)[1], 2))),
+            color = "#E41A1C",
+            x = 18, y = 65, size = 3) +
+  scale_x_continuous(limits = c(1,22), breaks = 1:22, labels = db$anotrim) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, limits = c(60, 70), breaks = seq(60, 70, by = 2))+
+  scale_color_manual(name = NULL,
+                     values = c("Color 1" = "#377EB8", "Color 2" = "#E41A1C"),
+                     labels = c("Tramo 45 horas", "Tendencia tramo 45 horas"))+
+  guides(color = guide_legend(override.aes = list(linetype = c("solid", "longdash")))) +
+  labs(y = "% trabajadores",
+       x = NULL) +
+  theme(axis.text.x = element_text(angle = 90,
+                                    vjust = 0.5,
+                                    size = rel(0.8)))
+  
+  
+g18.2 <- db %>% 
+  dplyr::select(anotrim, time, starts_with("prop_46")) %>% 
+  ggplot(aes(x = time)) +
+  geom_vline(xintercept = 12.5, linetype = "solid", color = "black") +
+  geom_smooth(aes(y = prop_46omás_1, color = "Color 2"), 
+              linetype = "longdash", method = "lm", se = FALSE, size = 0.6) +
+  geom_line(aes(y = prop_46omás_1, color = "Color 1"), linetype = "solid", size = 0.7) +
+  geom_text(aes(label = paste("y =", round(coef(m19)[2], 2), "x +", round(coef(m19)[1], 2))),
+            color = "darkorange",
+            x = 7, y = 13.5, size = 3) +
+  geom_smooth(aes(y = prop_46omás_2, color = "Color 2"), 
+              linetype = "longdash", method = "lm", se = FALSE, size = 0.6) +
+  geom_line(aes(y = prop_46omás_2, color = "Color 1"), linetype = "solid", size = 0.7) +
+  geom_text(aes(label = paste("y =", round(coef(m20)[2], 2), "x +", round(coef(m20)[1], 2))),
+            color = "darkorange",
+            x = 19, y = 13.25, size = 3) +
+  scale_x_continuous(limits = c(1,22), breaks = 1:22, labels = db$anotrim) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, limits = c(11, 15), breaks = seq(11, 15, by = 1))+
+  scale_color_manual(name = NULL,
+                     values = c("Color 1" = "#4DAF4A", "Color 2" = "darkorange"),
+                     labels = c("Tramo 46 horas o más", "Tendencia tramo 46 horas o más"))+
+  guides(color = guide_legend(override.aes = list(linetype = c("solid", "longdash")))) +
+  labs(y = NULL,
+       x = NULL)  +
+  theme(axis.text.x = element_text(angle = 90,
+                                    vjust = 0.5,
+                                    size = rel(0.8)))
+
+g18 <- plot_grid(g18.1, g18.2)
+
+
+
+```
+
+```{r echo=FALSE, fig.cap='Tendencias porcentaje de trabajadores en tramos de medida agregada de horas habituales totales 45 y 46 o más horas (2020-2023)'}
+g18+
+  theme(legend.key.size = unit(1, "cm"),
+  legend.key.width = unit(0.2,"cm")
+  )
+```
+
+
+```{r include=FALSE}
+
+df <- proc_db[[21]] %>% 
+  select(ano_trimestre, mes_central, sexo, media) %>% 
+  mutate(sexo = if_else(sexo == 1, "Hombres", "Mujeres"))
+
+df_hombres <- df[df$sexo == "Hombres", ]
+df_mujeres <- df[df$sexo == "Mujeres", ]
+
+serie_temporal_hombres <- ts(df_hombres$media, 
+                             start = c(df_hombres$ano_trimestre[1], df_hombres$mes_central[1]), 
+                             frequency = 12)
+
+serie_temporal_mujeres <- ts(df_mujeres$media, 
+                             start = c(df_mujeres$ano_trimestre[1], df_mujeres$mes_central[1]), 
+                             frequency = 12)
+
+df_combined <- bind_rows(
+  data.frame(sexo = "Hombres", time = time(serie_temporal_hombres), value = as.numeric(serie_temporal_hombres)),
+  data.frame(sexo = "Mujeres", time = time(serie_temporal_mujeres), value = as.numeric(serie_temporal_mujeres))
+)
+
+
+
+n <- nrow(df_combined[df_combined$sexo=="Mujeres",])
+time_points <- 1:n
+
+m21 <- tslm(formula =  serie_temporal_hombres ~ time_points)
+m22 <- tslm(formula =  serie_temporal_mujeres ~ time_points)
+
+
+g19 <- ggplot(df_combined, aes(x = time, y = value, color = sexo)) +
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ x, aes(group = sexo), linetype = "longdash", linewidth = 0.7) +
+  geom_line(linetype = "solid", linewidth = 1) +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_continuous(breaks = seq(2020, 2023, by = 1)) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  geom_text(aes(label = paste("y =", round(coef(m21)[2], 2), "x +", round(coef(m21)[1], 2))),
+            color = "#E41A1C",
+            x = 2022, y = 45.5, size = 3) +
+  geom_text(aes(label = paste("y =", round(coef(m22)[2], 2), "x +", round(coef(m22)[1], 2))),
+            color = "#377EB8",
+            x = 2022, y = 43.5, size = 3) +
+  labs(y = "Promedio MATHO",
+       x = NULL,
+       color = "Sexo",
+       caption = "Fuente: Elaboración propia en base a ENE.") +
+  theme(axis.text.x = element_text(angle = 0,
+                                   vjust = 0.5,
+                                   size = rel(1)))
+
+
+
+df <- proc_db[[28]] %>% 
+  filter(hab_t_dos %in% c("40", "41 a 44", "45", "46 o más")) %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  pivot_wider(id_cols = c(anotrim, sexo),
+              names_from = hab_t_dos,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t_dos}")
+
+df$dif_40 <- NA
+df$dif_41_44 <- NA
+df$dif_45 <- NA
+df$dif_46_mas <- NA
+
+df[25:nrow(df),7:10] <- df[25:nrow(df),3:6] - df[1:(nrow(df)-24),3:6]
+
+df <- df %>% 
+  select(anotrim, sexo, starts_with("dif")) %>% 
+  na.omit()
+
+df
+
+df$acum_40 <- ave(df$dif_40, df$sexo, FUN = cumsum)
+df$acum_41_44 <- ave(df$dif_41_44, df$sexo, FUN = cumsum)
+df$acum_45 <- ave(df$dif_45, df$sexo, FUN = cumsum)
+df$acum_46_mas <- ave(df$dif_46_mas, df$sexo, FUN = cumsum)
+
+g20 <- df %>% 
+  select(anotrim, sexo, starts_with("acum")) %>% 
+  pivot_longer(cols = -c(1,2),
+               names_to = "names",
+               values_to = "value") %>% 
+  na.omit() %>% 
+  mutate(sexo = if_else(sexo == 1, "Hombres", "Mujeres"),
+         names = case_when(names == "acum_40" ~ "40",
+                           names == "acum_41_44" ~ "41 a 44",
+                           names == "acum_45" ~ "45",
+                           names == "acum_46_mas" ~ "46 o más")) %>% 
+  ggplot(aes(x = anotrim, y = value, group = names, color = names)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 mam"), linetype = "dashed") +
+  geom_hline(aes(yintercept = 0), linetype = "solid", color = "black")+
+  facet_wrap(~sexo) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     n.breaks = 10) +
+  scale_x_discrete(breaks = c(trims, "2023 mam")) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  labs(y = "Variación anual acumulada",
+       x = NULL,
+       color = "Tramos MATHO",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+
+```
+
+
+```{r echo=FALSE, fig.cap='Evolución promedio medida agregada horas habituales totales según sexo (2020-2023)'}
+g19
+```
+
+
+```{r echo=FALSE, fig.cap='Tendencias porcentaje de trabajadores en tramos de medida agregada de horas habituales totales según sexo (2020-2023)'}
+g20
+```
+
+
+```{r include=FALSE}
+
+g21 <- proc_db[[22]] %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>%
+  ggplot(aes(x = anotrim, y = media, color = edad_t, group = edad_t)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 mam"), linetype = "dashed") +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_discrete(breaks = c(trims, "2023 mam")) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  labs(y = "Promedio horas habituales",
+       x = NULL,
+       color = "Edad",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+
+df <- proc_db[[29]] %>% 
+  filter(hab_t_dos %in% c("40", "41 a 44", "45", "46 o más")) %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  pivot_wider(id_cols = c(anotrim, edad_t),
+              names_from = hab_t_dos,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t_dos}")
+
+df$dif_40 <- NA
+df$dif_41_44 <- NA
+df$dif_45 <- NA
+df$dif_46_mas <- NA
+
+df[49:nrow(df),7:10] <- df[49:nrow(df),3:6] - df[1:(nrow(df)-48),3:6]
+
+df <- df %>% 
+  select(anotrim, edad_t, starts_with("dif")) %>% 
+  na.omit()
+
+df
+
+df$acum_40 <- ave(df$dif_40, df$edad_t, FUN = cumsum)
+df$acum_41_44 <- ave(df$dif_41_44, df$edad_t, FUN = cumsum)
+df$acum_45 <- ave(df$dif_45, df$edad_t, FUN = cumsum)
+df$acum_46_mas <- ave(df$dif_46_mas, df$edad_t, FUN = cumsum)
+
+
+g22 <- df %>% 
+  select(anotrim, edad_t, starts_with("acum")) %>% 
+  pivot_longer(cols = -c(1,2),
+               names_to = "names",
+               values_to = "value") %>% 
+  na.omit() %>% 
+  mutate(names = case_when(names == "acum_40" ~ "40",
+                           names == "acum_41_44" ~ "41 a 44",
+                           names == "acum_45" ~ "45",
+                           names == "acum_46_mas" ~ "46 o más")) %>% 
+  ggplot(aes(x = anotrim, y = value, group = names, color = names)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 mam"), linetype = "dashed") +
+  geom_hline(aes(yintercept = 0), linetype = "solid", color = "black")+
+  facet_wrap(~edad_t) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     n.breaks = 5) +
+  scale_x_discrete(breaks = c(trims, "2023 mam")) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  labs(y = "Variación anual acumulada",
+       x = NULL,
+       color = "Tramos MATHO",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+
+```
+
+```{r echo=FALSE, fig.cap='Evolución promedio medida agregada horas habituales totales según tramo etario (2020-2023)'}
+g21
+```
+
+```{r echo=FALSE, fig.asp=0.9, out.height='90%', fig.cap='Tendencias porcentaje de trabajadores en tramos de medida agregada de horas habituales totales según tramo etario (2020-2023)'}
+g22
+```
+
+
+```{r include=FALSE}
+
+
+g23 <- proc_db[[23]] %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  na.omit() %>% 
+  ggplot(aes(x = anotrim, y = media, group = cine, color = cine)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 mam"), linetype = "dashed") +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_discrete(breaks = c(trims, "2023 mam")) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  labs(y = "Promedio MATHO",
+       x = NULL,
+       color = "Nivel educativo",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+df <- proc_db[[30]] %>% 
+  filter(hab_t_dos %in% c("40", "41 a 44", "45", "46 o más")) %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  pivot_wider(id_cols = c(anotrim, cine),
+              names_from = hab_t_dos,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t_dos}")
+
+df$dif_40 <- NA
+df$dif_41_44 <- NA
+df$dif_45 <- NA
+df$dif_46_mas <- NA
+
+df[49:nrow(df),7:10] <- df[49:nrow(df),3:6] - df[1:(nrow(df)-48),3:6]
+
+df <- df %>% 
+  select(anotrim, cine, starts_with("dif")) %>% 
+  na.omit()
+
+df
+
+df$acum_40 <- ave(df$dif_40, df$cine, FUN = cumsum)
+df$acum_41_44 <- ave(df$dif_41_44, df$cine, FUN = cumsum)
+df$acum_45 <- ave(df$dif_45, df$cine, FUN = cumsum)
+df$acum_46_mas <- ave(df$dif_46_mas, df$cine, FUN = cumsum)
+
+
+g24 <- df %>% 
+  select(anotrim, cine, starts_with("acum")) %>% 
+  pivot_longer(cols = -c(1,2),
+               names_to = "names",
+               values_to = "value") %>% 
+  na.omit() %>% 
+  mutate(names = case_when(names == "acum_40" ~ "40",
+                           names == "acum_41_44" ~ "41 a 44",
+                           names == "acum_45" ~ "45",
+                           names == "acum_46_mas" ~ "46 o más")) %>% 
+  ggplot(aes(x = anotrim, y = value, group = names, color = names)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 mam"), linetype = "dashed") +
+  geom_hline(aes(yintercept = 0), linetype = "solid", color = "black")+
+  facet_wrap(~cine) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     n.breaks = 5) +
+  scale_x_discrete(breaks = c(trims, "2023 mam")) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  labs(y = "Variación anual acumulada",
+       x = NULL,
+       color = "Tramos MATHO",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+
+
+```
+
+
+```{r echo=FALSE, fig.cap='Evolución promedio medida agregada horas habituales totales según nivel educacional (2020-2023)'}
+g23
+```
+
+```{r echo=FALSE, fig.asp=0.9, out.height='90%', fig.cap='Tendencias porcentaje de trabajadores en tramos de medida agregada de horas habituales totales según nivel eduacional (2020-2023)'}
+g24
+```
+
+
+```{r include=FALSE}
+
+g25 <- proc_db[[24]] %>% 
+  select(anotrim, ciuo08, media, media_low, media_upp) %>% 
+  filter(ciuo08 != "Otros no identificados") %>% 
+  na.omit() %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         ciuo08 = as.character(ciuo08),
+         ciuo08 = str_trunc(ciuo08, 30, "right"),
+         ciuo08 = factor(ciuo08, levels = unique(ciuo08))) %>% 
+  ggplot(aes(x = anotrim, y = media, group = 1)) +
+  geom_line(linewidth = 1, color = "#377EB8") +
+  geom_ribbon(aes(ymin = media_low, ymax = media_upp), alpha = 0.1, fill = "blue") +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_discrete(breaks = trims) +
+  facet_wrap(~ciuo08) +
+  labs(y = "Promedio MATHO",
+       x = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+
+df <- proc_db[[31]] %>% 
+  filter(hab_t_dos %in% c("40", "41 a 44", "45", "46 o más") & ciuo08 != "Otros no identificados") %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  pivot_wider(id_cols = c(anotrim, ciuo08),
+              names_from = hab_t_dos,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t_dos}")
+
+df$dif_40 <- NA
+df$dif_41_44 <- NA
+df$dif_45 <- NA
+df$dif_46_mas <- NA
+
+df[109:nrow(df),7:10] <- df[109:nrow(df),3:6] - df[1:(nrow(df)-108),3:6]
+
+df <- df %>% 
+  select(anotrim, ciuo08, starts_with("dif")) %>% 
+  na.omit()
+
+df
+
+df$acum_40 <- ave(df$dif_40, df$ciuo08, FUN = cumsum)
+df$acum_41_44 <- ave(df$dif_41_44, df$ciuo08, FUN = cumsum)
+df$acum_45 <- ave(df$dif_45, df$ciuo08, FUN = cumsum)
+df$acum_46_mas <- ave(df$dif_46_mas, df$ciuo08, FUN = cumsum)
+
+
+g26 <- df %>% 
+  select(anotrim, ciuo08, starts_with("acum")) %>% 
+  pivot_longer(cols = -c(1,2),
+               names_to = "names",
+               values_to = "value") %>% 
+  na.omit() %>% 
+  mutate(names = case_when(names == "acum_40" ~ "40",
+                           names == "acum_41_44" ~ "41 a 44",
+                           names == "acum_45" ~ "45",
+                           names == "acum_46_mas" ~ "46 o más"),
+         ciuo08 = as.character(ciuo08),
+         ciuo08 = str_trunc(ciuo08, 30, "right"),
+         ciuo08 = factor(ciuo08, levels = unique(ciuo08))) %>% 
+  ggplot(aes(x = anotrim, y = value, group = names, color = names)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 mam"), linetype = "dashed") +
+  geom_hline(aes(yintercept = 0), linetype = "solid", color = "black")+
+  facet_wrap(~ciuo08) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     breaks = seq(-50, 100, by = 25)) +
+  scale_x_discrete(breaks = c(trims, "2023 mam")) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  labs(y = "Variación anual acumulada",
+       x = NULL,
+       color = "Tramos MATHO",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+
+```
+
+
+
+```{r echo=FALSE, fig.asp=0.9, out.height='90%', fig.cap='Evolución promedio medida agregada horas habituales totales según grupo ocupacional (2020-2023)'}
+g25
+```
+
+```{r echo=FALSE, fig.asp=1, out.height='100%', fig.cap='Tendencias porcentaje de trabajadores en tramos de medida agregada de horas habituales totales según grupo ocupacional (2020-2023)'}
+g26
+```
+
+
+```{r include=FALSE}
+
+g27 <- proc_db[[25]] %>% 
+  select(anotrim, tam_emp, media, media_low, media_upp) %>% 
+  na.omit() %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  ggplot(aes(x = anotrim, y = media, group = 1)) +
+  geom_line(linewidth = 1, color = "#377EB8") +
+  geom_ribbon(aes(ymin = media_low, ymax = media_upp), alpha = 0.1, fill = "blue") +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_discrete(breaks = trims) +
+  facet_wrap(~tam_emp, ncol = 2) +
+  labs(y = "Promedio MATHO",
+       x = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+df <- proc_db[[33]] %>% 
+  filter(hab_t_dos %in% c("40", "41 a 44", "45", "46 o más")) %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  pivot_wider(id_cols = c(anotrim, tam_emp),
+              names_from = hab_t_dos,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t_dos}")
+
+df$dif_40 <- NA
+df$dif_41_44 <- NA
+df$dif_45 <- NA
+df$dif_46_mas <- NA
+
+df[61:nrow(df),7:10] <- df[61:nrow(df),3:6] - df[1:(nrow(df)-60),3:6]
+
+df <- df %>% 
+  select(anotrim, tam_emp, starts_with("dif")) %>% 
+  na.omit()
+
+df
+
+df$acum_40 <- ave(df$dif_40, df$tam_emp, FUN = cumsum)
+df$acum_41_44 <- ave(df$dif_41_44, df$tam_emp, FUN = cumsum)
+df$acum_45 <- ave(df$dif_45, df$tam_emp, FUN = cumsum)
+df$acum_46_mas <- ave(df$dif_46_mas, df$tam_emp, FUN = cumsum)
+
+
+g28 <- df %>% 
+  select(anotrim, tam_emp, starts_with("acum")) %>% 
+  pivot_longer(cols = -c(1,2),
+               names_to = "names",
+               values_to = "value") %>% 
+  na.omit() %>% 
+  mutate(names = case_when(names == "acum_40" ~ "40",
+                           names == "acum_41_44" ~ "41 a 44",
+                           names == "acum_45" ~ "45",
+                           names == "acum_46_mas" ~ "46 o más")) %>% 
+  ggplot(aes(x = anotrim, y = value, group = names, color = names)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 mam"), linetype = "dashed") +
+  geom_hline(aes(yintercept = 0), linetype = "solid", color = "black")+
+  facet_wrap(~tam_emp, ncol = 2) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     breaks = seq(-50, 100, by = 25)) +
+  scale_x_discrete(breaks = c(trims, "2023 mam")) +
+  scale_color_brewer(type = "qual", palette = "Set1") +
+  labs(y = "Variación anual acumulada",
+       x = NULL,
+       color = "Tramos MATHO",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+```
+
+
+```{r echo=FALSE, fig.asp=0.9, out.height='90%', fig.cap='Evolución promedio medida agregada horas habituales totales según tamaño de empresa (2020-2023)'}
+g27
+```
+
+```{r echo=FALSE, fig.asp=0.9, out.height='90%', fig.cap='Tendencias porcentaje de trabajadores en tramos de medida agregada de horas habituales totales según tamaño de empresa (2020-2023)'}
+g28
+```
+
+
+
+# Conclusiones
+
+# Anexos
+
+## Anexo 1
+
+\newpage
+
+```{r echo=FALSE}
+glosa <- c("Agricultura, silvicultura y pesca",
+"Minería y canteras",
+"Industria Manufacturera",
+"Suministro de electricidad, gas, vapor y aire acondicionado",
+"Abastecimiento de agua; actividades de alcantarillado, gestión de desechos y rehabilitación",
+"Construcción",
+"Comercio al por mayor y al por menor; reparación de vehículos de motor y motocicletas",
+"Transporte y almacenamiento",
+"Alojamiento y actividades de servicio de comida",
+"Información y comunicación",
+"Actividades financieras y de seguros",
+"Actividades inmobiliarias",
+"Actividades profesionales, científicas y técnicas",
+"Actividades administrativas y de servicios de apoyo",
+"Administración pública y defensa; seguridad social obligatoria",
+"Educación",
+"Actividades de salud humana y trabajo social",
+"Artes, entretenimiento y recreación",
+"Otras actividades de servicios",
+"Actividades de los hogares como empleadores; actividades de los hogares (...)",
+"Actividades de las organizaciones y organismos extraterritoriales")
+
+letra <- c("A",
+           "B",
+           "C",
+           "D",
+           "E",
+           "F",
+           "G",
+           "H",
+           "I",
+           "J",
+           "K",
+           "L",
+           "M",
+           "N",
+           "O",
+           "P",
+           "Q",
+           "R",
+           "S",
+           "T",
+           "U")
+
+glosa <- cbind(letra,glosa)
+
+glosa %>% 
+  knitr::kable(caption = "Clasificación Industrial Internacional Uniforme (CIIU 2012)", col.names = c("Letra", "Glosa"), booktabs = T, linesep = "") %>% 
+kable_styling(latex_options = c("striped", "HOLD_position"),font_size = 10)
+```
+
+
+
+## Anexo 2
+
+
+
+

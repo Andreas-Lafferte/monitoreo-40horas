@@ -1,0 +1,121 @@
+---
+geometry: "left=0cm,right=1.5cm,top=0cm,bottom=0cm"
+header-includes:
+- \usepackage{titling}
+- \pretitle{\begin{center}\LARGE\includegraphics[width=3cm]{logo.png}\\[\bigskipamount]}
+- \posttitle{\end{center}}
+- \usepackage[fontsize=12pt]{scrextend}
+- \usepackage{floatrow}
+- \usepackage{multicol}
+- \usepackage{fontspec}
+- \setmainfont{Georgia}
+- \floatsetup[figure]{capposition=top}
+- \floatsetup[table]{capposition=top}
+- \floatplacement{figure}{H}
+- \floatplacement{table}{h}
+
+output: 
+  bookdown::pdf_document2:
+    latex_engine: xelatex
+    extra_dependencies: ["color","xcolor","array","ragged2e","wrapfig","multicol","fancyhdr","hyphenat","tikz","amsmath"]
+    toc: no
+    highlight: tango
+    number_sections: TRUE
+link-citations: yes
+linkcolor: blue
+urlcolor: blue
+---
+
+\tolerance=1
+\emergencystretch=\maxdimen
+\hyphenpenalty=10000
+\hbadness=10000
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, include = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+```{r paquetes, echo=FALSE}
+if (! require("pacman")) install.packages("pacman")
+
+pacman::p_load(knitr, 
+               tidyverse,
+               lubridate,
+               scales,
+               kableExtra,
+               glue,
+               here)
+```
+
+```{r parametros, echo=FALSE}
+
+```
+
+```{r funciones, echo=FALSE}
+
+miles <- function(x) {
+  format(round(as.numeric(x),0), big.mark = ".")
+}
+
+decimales <- function(x) {
+  format(round(as.numeric(x), 2), decimal.mark = ",")
+}
+
+# set theme
+
+theme_nice <- function() {
+   theme_bw() +
+  theme(legend.position = "top",
+        axis.title = element_text(size = 12),
+        axis.text.y = element_text(size = rel(1)),
+        plot.title = element_text(face = "bold", size = 12),
+        axis.text.x = element_text(angle = 90,
+                                   vjust = 0.5,
+                                   size = rel(1)))
+
+
+}
+
+theme_set(theme_nice())
+
+```
+
+
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\figurename}{Figura}
+
+\definecolor{naranjodoc}{RGB}{55, 127, 199}
+\definecolor{naranjodocoscuro}{RGB}{44, 102, 159}
+
+\begin{tikzpicture}
+ \draw [fill=naranjodoc] (0,0) rectangle (14,27.9);
+ \draw [fill=naranjodocoscuro] (14,0) rectangle (15,27.9);
+ \node[text=naranjodoc, font=\bfseries] at (18.3,25) {\Large Unidad de Estudios};
+  \node[text=naranjodoc, font=\bfseries] at (18.3,24) {\Large Laborales};
+ \node[right, text=white, font=\bfseries] at (1,17) {\Huge Informe de Resultados};
+ \node[right,text=white] at (1,14) {\Large Título };
+ 
+ \draw [fill=white] (0.5,4) rectangle (13.5,4.2);
+ \node[right, text=white, font=\bfseries] at (9,2) {Primera versión};
+  \node[right, text=white, font=\bfseries] at (9,1.5) {`r lubridate::today()`};
+ \node[inner sep=0pt] (ine) at (18.3,4)
+    {\includegraphics[width=2in,height=2in]{logo.PNG}};
+  \node[text=white] at (18,10) {};
+\end{tikzpicture}
+
+\newpage
+
+\newgeometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+\newpage
+
+\setcounter{tocdepth}{2}
+\renewcommand{\contentsname}{Tabla de contenidos}
+
+\hypersetup{linkcolor=black}
+\tableofcontents
+
+\hypersetup{linkcolor=blue}
+
+\newpage
