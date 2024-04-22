@@ -213,13 +213,20 @@ El documento se organiza en tres secciones. Primero, en la sección de [Antecede
 
 # Antecedentes conceptuales y empíricos {#background}
 
+La regulación y tratamiento de la jornada laboral son fundamentales para una sociedad, en la medida que permiten salvaguardar el bienestar de los trabajadores, promover la conciliación de la vida laboral y familiar, mejorar la productividad y progreso de una economía, así como abordar distintas disparidades entre grupos sociales (OIT,2022). Las horas de trabajo se definen como. Se han medido como.
+
+Históricamente, las horas de trabajo promedio han disminuido drásticamente, especialmente en aquellos países que experimentaron tempranamente la revolución industrial. Desde finales de 1800s hasta gran parte del siglo XX, ha ocurrido una clara tendencia hacia la reducción de las largas horas de trabajo y jornadas laborales extremas. La evolución de las horas de trabajo tienden a reflejar diversos efectos cíclicos y estructurales, como los cambios en los grupos ocupacionales y sectores de actividad económica, transformaciones tecnológicas y productivas, los niveles salariales, así como cambios en las normas sociales destinadas a regular institucionalmente los tiempos de trabajo (OECD, 2021). Desde 1870 hasta 1913 hubo una disminución relativamente lenta; luego, desde 1913 hasta 1938, la disminución de las horas se aceleró en medio de los poderosos cambios sociopolíticos, tecnológicos y económicos que se produjeron con la Primera Guerra Mundial, la Gran Depresión y el período previo a la Segunda Guerra Mundial; y luego, después de un aumento en las horas durante y justo después de la Segunda Guerra Mundial, la disminución de las horas continuó para muchos países, aunque a un ritmo más lento y con grandes diferencias entre países (AUTORES).
+
+Si bien muchos países han experimentado reducciones continuas en las horas de trabajo en las últimas décadas, persisten notables divergencias entre naciones desarrolladas y aquellas en vías de desarrollo. Esto es especialmente el caso cuando se analizan las horas habituales trabajadas antes que las horas formalmente trabajadas, que han tendido a disminuir en mayor medida que las primeras (OIT, 2022). Además, no solo interesa la evolución del promedio de las horas trabajadas, sino que también su distribución, puesto que permite observar de mejor manera la composición de la jornada laboral entre distitintos segmentos del mercado laboral, en donde la evidencia internacional ha demostrado que tienden a ser los grupos más desvantajados quienes experiementan mayores horas de trabajo (OIT, 2022). 
+
+
 
 ```{r promoecd, echo=FALSE, fig.cap='Evolución promedio de horas semanales habituales trabajadas en el empleo principal, países OECD (1980-2022)'}
 
 datos <- oecd_long %>% 
   filter(country %in% c("Chile", "OECD", "Portugal", "Mexico",
                         "Colombia", "Brazil", "United States", 
-                        "Norway")) %>% 
+                        "Norway", "United Kingdom")) %>% 
   na.omit() 
 
 
@@ -260,9 +267,10 @@ ggplot(datos, aes(x = year, y = value, group = pais_name)) +
 
 ```
 
-Durante los últimos 150 años, ha habido una disminución significativa en las horas de trabajo a nivel mundial, resultado de reducciones en los horarios diarios, semanales y anuales de trabajo. Buena parte de esta disminución se asocia tanto a los cambios tecnológicos y productivos experimentados en los siglos anteriores, así como a las diversas normas y marcos institucionales que lo han regulado a lo largo de la historia. Si bien muchos países han experimentado reducciones continuas en las horas de trabajo en las últimas décadas, persisten notables divergencias entre diferentes naciones. Centrándonos en los últimos 70 años y considerando países más allá de los primeros industrializados, los datos muestran una reducción continua en las horas de trabajo para muchas naciones junto con disparidades notables. Por ejemplo, Alemania ha experimentado una disminución continua, en contraste con los Estados Unidos, donde la disminución se ha estabilizado en los últimos años. Algunos países exhiben un patrón en forma de U invertida, como Corea del Sur, donde las horas aumentaron hasta la década de 1980 antes de disminuir, mientras que otros, como China, experimentaron aumentos en la década de 1990 y principios de los 2000 antes de estabilizarse.
 
+En los últimos 70 años, se observa que en los países desarrollados las horas de trabajo tienden a reducirse conforme ha pasado el tiempo, mientras que en los países en desarrollo este patrón es más variable, mostrando periodos de alzas, bajas y estabilizaciones que se asocian a su modelo de desarrollo económico (REFERENCIA). De acuerdo con la Figura \@ref(fig:promoecd), países como Noruega se han mantenido con un promedio bajo de horas de trabajo en el tiempo, mientras que países como Portugal exhiben mayores horas de trabajo que han tendido a oscilar en el tiempo. Alemania ha experimentado una disminución continua, en contraste con los Estados Unidos, donde la disminución se ha estabilizado en los últimos años. En América Latina, Brasil ha mostrado una disminución consistente desde 1970 a la fecha, pero sus pares como México o Colombia muestran una disminución muy lenta o marginal que los mantiene como algunos de los países que más horas promedio trabajan en la región. 
 
+En este contexto, Chile...
 
 
 
