@@ -33,9 +33,8 @@ urlcolor: blue
 ---
 
 \tolerance=1
-\emergencystretch=\maxdimen
-\hyphenpenalty=10000
-\hbadness=10000
+
+\emergencystretch=\maxdimen \hyphenpenalty=10000 \hbadness=10000
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, include = TRUE, warning = FALSE, message = FALSE)
@@ -117,13 +116,15 @@ colores <- c("red", "blue", "darkgreen","darkorange", "brown4", "darkviolet")
 
 ```
 
-
+```{=tex}
 \renewcommand{\tablename}{Tabla}
 \renewcommand{\figurename}{Figura}
-
+```
+```{=tex}
 \definecolor{naranjodoc}{RGB}{0, 105, 184}
 \definecolor{naranjodocoscuro}{RGB}{0, 76, 133}
-
+```
+```{=tex}
 \begin{tikzpicture}
  \draw [fill=naranjodoc] (0,0) rectangle (14,27.9);
  \draw [fill=naranjodocoscuro] (14,0) rectangle (15,27.9);
@@ -144,19 +145,21 @@ colores <- c("red", "blue", "darkgreen","darkorange", "brown4", "darkviolet")
     {\includegraphics[width=2in,height=2in]{logo.PNG}};
   \node[text=white] at (18,10) {};
 \end{tikzpicture}
-
+```
 \newpage
 
 \newgeometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
 
 \newpage
 
+```{=tex}
 \setcounter{tocdepth}{2}
 \renewcommand{\contentsname}{Tabla de contenidos}
-
+```
+```{=tex}
 \hypersetup{linkcolor=black}
 \tableofcontents
-
+```
 \hypersetup{linkcolor=blue}
 
 \newpage
@@ -165,19 +168,19 @@ colores <- c("red", "blue", "darkgreen","darkorange", "brown4", "darkviolet")
 
 \thispagestyle{empty} <!-- Para evitar numeración en la página del Resumen -->
 
-
 En este informe se presenta un análisis y propuesta metodológica de monitoreo de la reducción de la jornada laboral a 40 horas en el mercado del trabajo mediante encuestas de hogares. En específico, se analiza la evolución, composición y cambio de las horas habituales de trabajo de los asalariados formales del sector privado según diferentes características sociodemográficas y laborales. Utilizando datos provenientes de la Encuesta Nacional de Empleo del Instituto Nacional de Estadísticas (INE), se pueden destacar los siguientes hallazgos:
 
--
--
--
-    
+-   
+
+-   
+
+-   
 
 \newpage
 
 # Introducción
 
-Este informe tiene el doble objetivo de presentar una metodología de monitoreo de la implementación de la Ley “40 horas” en la reducción de la jornada laboral, a la vez que busca describir y analizar cuantitativamente estos cambios en el mercado laboral. Para ello, toma como principal fuente de información los datos provistos por la Encuesta Nacional de Empleo del Instituto Nacional de Estadísticas (INE), enfocándose exclusivamente en los asalariados formales del sector privado debido a que son la principal población objetivo de esta medida y el grupo sobre el cual los servicios dependientes la Subsecretaría del Trabajo pueden fiscalizar y regular. 
+Este informe tiene el doble objetivo de presentar una metodología de monitoreo de la implementación de la Ley "40 horas" en la reducción de la jornada laboral, a la vez que busca describir y analizar cuantitativamente estos cambios en el mercado laboral. Para ello, toma como principal fuente de información los datos provistos por la Encuesta Nacional de Empleo del Instituto Nacional de Estadísticas (INE), enfocándose exclusivamente en los asalariados formales del sector privado debido a que son la principal población objetivo de esta medida y el grupo sobre el cual los servicios dependientes de la Subsecretaría del Trabajo pueden fiscalizar y regular.
 
 El documento se organiza en tres secciones. Primero, en el apartado de [Método](#method) se presentan los datos, variables y métodos estadísticos utilizados, detallando los procedimientos y tratamientos realizados a los datos. Segundo, en la sección de [Resultados](#results) se exponen los análisis estadísticos descriptivos y de series de tiempo empleados para analizar los cambios en la reducción de la jornada laboral. Por último, en la sección de [Conclusiones](#conclusion) se exponen los principales resultados y diagnóstico general de los cambios en la jornada laboral, además de presentar las limitaciones y sugerencias de la metodología propuesta.
 
@@ -211,21 +214,17 @@ El **tamaño de empresa** en donde trabajan las personas se mide a partir de una
 
 En la tabla \@ref(tab:brown2) se presentan los posibles valores que pueden tomar las variables utilizadas.
 
-
-
-
 ## Métodos
 
-Se realizan análisis descriptivos univariados y bivariados, utilizando estimaciones puntuales a nivel poblacional junto con sus respectivas medidas de confiabilidad y error. Además, se emplean estadísticos de asociación entre variables para evaluar hipótesis de diferencias entre promedios, proporciones y frecuencias.
-
+Se realizan análisis descriptivos univariados y bivariados, utilizando estimaciones puntuales a nivel poblacional junto con sus respectivas medidas de confiabilidad y error. Además, se emplean estadísticos de asociación entre variables para evaluar hipótesis de diferencias entre promedios, proporciones y frecuencias. Para los parámetros en series de tiempo se emplean análisis de tendencias (MCO) y modelos de descomposición de series de tiempo. 
 
 ```{r brown2, echo=FALSE}
 
 # Datos de la tabla
 tabla <- data.frame(
-  Tipo = c("Principal", "Principal", "Principal", "Principal", "Principal", "Principal", "Sociodemográficas", "Sociodemográficas", "Sociodemográficas", "Sociodemográficas", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales"), 
-  Variable = c("Horas habituales de trabajo", "Tramo horas habituales de trabajo", "Tramo horas habituales de trabajo", "Tramo horas habituales de trabajo", "Tramo horas habituales de trabajo", "Tramo horas habituales de trabajo", "Sexo", "Edad", "Nivel educacional (CINE 2011)", "Grupo ocupacional (CIUO 08)", "Sector de actividad económica CAENES (adaptación de CIIU Rev. 4.cl)", "Tamaño de empresa (número de trabajadores)", "Categoría en la ocupación (CISE 93)", "Categoría en la ocupación (CISE 93)", "Categoría en la ocupación (CISE 93)", "Categoría en la ocupación (CISE 93)"), 
-  Operacionalización = c("Total horas habituales de la ocupación principal/Total horas habituales de la ocupación principal y secundaria.", "1 a 30 horas", "31 a 39 horas", "40 horas", "41 a 44 horas", "45 horas", "Hombre = 1, Mujer = 2", "15 a 29 años", "Primaria o menos", "Directores y gerentes", "Ver Anexo 1", "Menos de 5 trabajadores", "Empleador", "Cuenta propia", "Asalariado sector privado", "Asalariado sector público"), 
+  Tipo = c("Principal", "Principal", "Principal", "Principal", "Principal", "Principal", "Sociodemográficas", "Sociodemográficas", "Sociodemográficas", "Sociodemográficas", "Sociodemográficas", "Sociodemográficas", "Sociodemográficas", "Sociodemográficas", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales"), 
+  Variable = c("Horas habituales de trabajo", "Tramo horas habituales de trabajo", "Tramo horas habituales de trabajo", "Tramo horas habituales de trabajo", "Tramo horas habituales de trabajo", "Tramo horas habituales de trabajo", "Sexo", "Edad", "Edad", "Edad", "Edad", "Nivel educacional (CINE 2011)", "Nivel educacional (CINE 2011)", "Nivel educacional (CINE 2011)", "Nivel educacional (CINE 2011)", "Grupo ocupacional (CIUO 08)", "Grupo ocupacional (CIUO 08)", "Grupo ocupacional (CIUO 08)", "Grupo ocupacional (CIUO 08)", "Grupo ocupacional (CIUO 08)", "Grupo ocupacional (CIUO 08)", "Grupo ocupacional (CIUO 08)", "Grupo ocupacional (CIUO 08)", "Grupo ocupacional (CIUO 08)", "Sector de actividad económica CAENES (adaptación de CIIU Rev. 4.cl)", "Tamaño de empresa (número de trabajadores)", "Tamaño de empresa (número de trabajadores)", "Tamaño de empresa (número de trabajadores)", "Tamaño de empresa (número de trabajadores)", "Tamaño de empresa (número de trabajadores)"), 
+  Operacionalización = c("Total horas habituales de la ocupación principal/Total horas habituales de la ocupación principal y secundaria.", "1 a 30 horas", "31 a 39 horas", "40 horas", "41 a 44 horas", "45 horas", "Hombre = 1, Mujer = 2", "15 a 29 años", "30 a 44 años", "45 a 59 años", "60 años o más",  "Primaria o menos", "Secundaria", "Técnica", "Universitaria o más", "Directores y gerentes", "Profesionales científicos e intelectuales", "Técnicos y profesionales de nivel medio", "Personal de apoyo administrativo", "Trabajadores de los servicios y vendedores de comercios y mercados", "Agricultores y trabajadores calificados agropecuarios, forestales y pesqueros", "Oficiales, operarios y artesanos de artes mecánicas y de otros oficios", "Operadores de instalaciones y máquinas y ensambladores", "Ocupaciones elementales", "Ver Anexo 1", "Menos de 5 trabajadores", "Micro empresa (entre 5 y 9 trabajadores)", "Pequeña empresa (entre 10 y 49 trabajadores)", "Mediana empresa (entre 50 y 199 trabajadores)", "Gran empresa (200 o más trabajadores)"), 
   stringsAsFactors = FALSE
 )
 
@@ -244,10 +243,7 @@ tabla1
 
 # Resultados {#results}
 
-
-Desde mediados del 2017 hasta fines del 2023, las horas habituales de trabajo de los asalariados formales del sector privado se han reducido consistentemente. Como se observa en la figura \@ref(fig:promh), si en 2017 el promedio era de 44,6 horas, en el 2023 alcanza las 43,5 horas, representando una disminución de 1 hora en promedio. La tendencia de la serie reafirma lo anterior mostrando que las horas habituales de trabajo se reducen en 0.02 puntos a medida que avanza el tiempo. Además, pareciera que el movimiento de la serie alrededor de la recta muestra oscilaciones por sobre y por debajo de esta de manera constante. Podría afirmarse que esta tendencia es producida por la caída global de las horas habituales de trabajo a causa de la pandemia en el 2020, la cual provocó pérdidas de masivas de empleo, un alza en la desocupación y una pérdida de las horas trabajadas, entre otros efectos (OIT, 2021). Sin embargo, en los años 2021-2023 de recuperación paulatina del mercado laboral, se observa que esta tendencia a la baja de hecho continua, sin regresar a los niveles pre-pandemia.
-
-
+Desde mediados del 2017 hasta fines del 2023, las horas habituales de trabajo de los asalariados formales del sector privado se han reducido consistentemente. Como se observa en la figura \@ref(fig:promh), si en 2017 el promedio era de 44,6 horas, en el 2023 alcanza las 43,5 horas, representando una disminución de 1 hora en promedio. La tendencia de la serie reafirma lo anterior (recta de regresión), mostrando que las horas habituales de trabajo se reducen en 0.02 puntos a medida que avanza el tiempo. Además, pareciera que el movimiento de la serie alrededor de la recta muestra oscilaciones por sobre y por debajo de esta de manera constante. Podría afirmarse que esta tendencia es producida por la caída global de las horas habituales de trabajo a causa de la pandemia en el 2020, la cual provocó pérdidas de masivas de empleo, un alza en la desocupación y una pérdida de las horas trabajadas, entre otros efectos (OIT, 2021). Sin embargo, en los años 2021-2023 de recuperación paulatina del mercado laboral, se observa que esta tendencia a la baja de hecho continua, sin regresar a los niveles pre-pandemia.
 
 ```{r include=FALSE}
 
@@ -259,34 +255,29 @@ time_points <- 1:n
 m1 <- tslm(formula = t_serie1 ~ time_points)
 
 g1 <- ggplot(data.frame(time = time(t_serie1), values = as.vector(t_serie1)), aes(x = time, y = values)) +
-  geom_smooth(method = "lm", se = FALSE, color = colores[1], linetype = "longdash", linewidth = 0.7) +
-  geom_line(linetype = "solid", color = colores[2], linewidth = 1) +
+  geom_smooth(aes(color = "Recta de regresión"), method = "lm", se = FALSE, linetype = "solid", linewidth = 0.7) +
+  geom_line(aes(color = "Valores reales"), linetype = "solid", linewidth = 0.8) +
   scale_y_continuous(labels = decimales, n.breaks = 5) +
   scale_x_continuous(limits = c(2017, 2024), n.breaks = 10) +
-  geom_text(aes(label = paste("y =", round(coef(m1)[2], 2), "x +", round(coef(m1)[1], 2))),
-            color = colores[1],
-            x = 2021, y = 44.35, size = 3) +
   labs(y = "Promedio horas habituales",
        x = NULL,
        caption = "Fuente: Elaboración propia en base a ENE.") +
-  theme(axis.text.x = element_text(angle = 0,
+  scale_color_manual(name = NULL, 
+                     values = c("Recta de regresión" = colores[1], "Valores reales" = colores[2])) +
+    theme(axis.text.x = element_text(angle = 0,
                                    vjust = 0.5,
                                    size = rel(1)))
 
-```
 
+```
 
 ```{r promh, echo=FALSE, fig.cap='Evolución promedio horas habituales (2017-2023)'}
 g1
 ```
 
-La tendencia general a la disminución de las horas habituales de trabajo también supone cambios en la distribución de los trabajadores entre los distintos tramos y tipos de jornadas laborales. En la figura \@ref(fig:tramh) se muestra la evolución de la distribución porcentual de los asalariados formales del sector privado en distintos tramos de horas habituales de trabajo. Por un lado, y en consonancia con la tendencia general del promedio, se observa una disminución en el porcentaje de trabajadores en los tramos de horas habituales más extensas, como lo son los tramos de 45 y 46 horas o más. Por el otro, aumenta la proporción de trabajadores en jornadas laborales con menos horas habituales de trabajo, como lo son el tramo de las 40 horas y el de 41 a 44 horas. Al respecto, es este último tramo el que ha presentado un mayor crecimiento exponencial desde fines del 2019 a la fecha. Por su parte, el tramo de 40 horas muestra una tendencia sin mayores variaciones pero que se acentúa positivamente a comienzos del 2023. El tramo que ha disminuido en mayor medida corresponde al de las 46 horas o más, con una reducción del 8% (aprox.). De todas maneras, el tramo que más cantidad de trabajadores agrupa en toda la serie corresponde al de las 45 horas habituales, aunque con una considerable reducción del 68% al 63% de los trabajadores asalariados formales del sector privado.
-
-
+La tendencia general a la disminución de las horas habituales de trabajo también supone cambios en la distribución de los trabajadores entre los distintos tramos y tipos de jornadas laborales. En las figuras \@ref(fig:tramh) y \@ref(fig:tramh2) se muestran la evolución de la distribución porcentual de los asalariados formales del sector privado en distintos tramos de horas habituales de trabajo. Por un lado, y en consonancia con la tendencia general del promedio, se observa una disminución en el porcentaje de trabajadores en los tramos de horas habituales más extensas, como lo son los tramos de 45 y 46 horas o más. Por el otro, aumenta la proporción de trabajadores en jornadas laborales con menos horas habituales de trabajo, como lo son el tramo de las 31 a 39 horas, 40 horas y el de 41 a 44 horas. Al respecto, es este último tramo el que ha presentado un mayor crecimiento exponencial desde fines del 2019 a la fecha. El tramo de las 31 a 39 horas también exhibe un aumento paulatino en la serie. Por su parte, el tramo de 40 horas muestra una tendencia sin mayores variaciones pero que se acentúa positivamente a comienzos del 2023. El tramo que ha disminuido en mayor medida corresponde al de las 46 horas o más, con una reducción del 8% (aprox.). De todas maneras, el tramo que más cantidad de trabajadores agrupa en toda la serie corresponde al de las 45 horas habituales, aunque con una considerable reducción del 68% al 63% de los trabajadores asalariados formales del sector privado.
 
 ```{r include=FALSE}
-
-
 
 df <- proc_db[[2]][c(1:3, 7, 10)] %>% 
   dplyr::select(anotrim, hab_t, prop) %>% 
@@ -328,17 +319,51 @@ g2 <- ggplot(data = df, mapping = aes(x = anotrim)) +
   labs(y = "% trabajadores",
        x = NULL,
        caption = "Fuente: Elaboración propia en base a ENE.") 
-  
+
+df <- proc_db[[2]][c(1:3, 7, 10)] %>% 
+  dplyr::select(anotrim, hab_t, prop) %>% 
+  filter(hab_t %in% c("1 a 30", "31 a 39")) %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  pivot_wider(id_cols = anotrim,
+              names_from = hab_t,
+              values_from = prop) %>% 
+  rename(v1 = `1 a 30`,
+         v2 = `31 a 39`) %>% 
+  mutate(time = row_number())
+
+
+g3 <- ggplot(data = df, mapping = aes(x = anotrim)) +
+  geom_line(aes(y = v1, group = 1, color = "Color 1"), linewidth = 0.8) +
+  geom_line(aes(y = v2, group = 1, color = "Color 2"), linewidth = 0.8) +
+  scale_y_continuous(
+    labels = function(prop){paste0(prop, "%")},
+    name = "% trabajadores",
+    n.breaks = 6) +
+  scale_x_discrete(breaks = trims) +
+  scale_color_manual(name = "Tramos horas habituales",
+                     values = c("Color 1" = "brown4", 
+                                "Color 2" = "darkviolet"),
+                     labels = c("1 a 30", 
+                                "31 a 39")) +
+  labs(y = "% trabajadores",
+       x = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.")   
    
 
 ```
-
 
 ```{r tramh, echo=FALSE, fig.cap='Evolución de la distribución porcentual de trabajadores según tramos de horas habituales (2017-2023)'}
 
 g2
 
 ```
+
+```{r tramh2, echo=FALSE, fig.cap='Evolución distribución porcentual de trabajadores en tramos de 1 a 30 y 31 a 39 horas (2017-2023)'}
+
+g3
+
+```
+
 
 Para examinar de mejor manera la evolución de estos tramos, en las figuras \@ref(fig:tendtram1) y \@ref(fig:tendtram2) se muestra la serie y tendencia de estos respectivos tramos entre 2020 y 2023. En los tramos de menores horas habituales (40 y 41 a 44 horas) se aprecia una pendiente marcadamente positiva desde comienzos del 2023 a la actualidad. En detalle, el tramo de 41 a 44 horas muestra una pendiente positiva durante el 2022 ($\beta$ = 0.05), la cual aumenta significativamente considerado como punto de corte el año 2023 ($\beta$ = 0.11). Más notorio es en el caso del tramo de las 40 horas, puesto que hasta el 2022 mostraba una tendencia de hecho negativa ($\beta$ = -0.02), sin embargo, desde inicios del 2023 esta tendencia cambia positivamente, mostrando un crecimiento exponencial del porcentaje de trabajadores ($\beta$ = 0.17) en este tramo de horas habituales a medida que avanza el tiempo.
 
@@ -422,7 +447,6 @@ g3 +
   )
 
 ```
-
 
 Al contrario, en los tramos mayores horas habituales se observa una consistente disminución del porcentaje de trabajadores. Tanto el tramo de 45 horas y de 46 horas o más presentan una tendencia negativa durante el 2022 ($\beta$ = -0.05; $\beta$ = -0.01, respectivamente), la cual se acentúa considerablemente desde el año 2023 ($\beta$ = -0.18; $\beta$ = -0.15, respectivamente), cambio que es especialmente notorio en el tramo de 46 horas o más.
 
@@ -557,13 +581,9 @@ p_results <- p_results %>%
 
 ```
 
-
 ```{r echo=FALSE, include=FALSE}
 nice_table(p_results, highlight = T, width = 1)
 ```
-
-
-
 
 ```{r include=FALSE}
 
@@ -668,7 +688,6 @@ g4+
   legend.key.width = unit(0.1,"cm")
   )
 ```
-
 
 ```{r include=FALSE}
 
@@ -779,11 +798,9 @@ g6 <- df %>%
 
 Aunque la tendencia general del promedio de horas habituales es hacia la disminución, al descomponer esta evolución entre hombres y mujeres se observan tendencias divergentes (ver figura \@ref(fig:promhsexo)). Desde 2020 a la actualidad, los hombres muestran una reducción de las horas habituales promedio, con una pendiente negativa y con un coeficiente pequeño. Por su parte, si bien las mujeres muestran un nulo cambio entre los puntos 2022 y 2023, si presentan variaciones relevantes durante el periodo que producen una tendencia ligeramente positiva.
 
-
 ```{r promhsexo, echo=FALSE, fig.cap='Evolución promedio horas habituales según sexo (2020-2023)'}
 g5
 ```
-
 
 En la figura \@ref(fig:tramhsexo) se muestra la variación anual acumulada del porcentaje de trabajadores en los tramos de horas habituales, diferenciados por sexo. Ambos grupos muestran una clara disminución en el porcentaje de trabajadores en tramos de 45 o 46 horas o más, mientras que los tramos de 40 y 41 a 44 horas presentan tendencias positivas.
 
@@ -792,7 +809,6 @@ De todas maneras, se observan diferencias entre sexos. Por un lado, la notable d
 ```{r tramhsexo, echo=FALSE, fig.cap='Tendencias porcentaje de trabajadores en tramos de horas habituales según sexo (2020-2023)'}
 g6
 ```
-
 
 ```{r include=FALSE}
 
@@ -863,7 +879,6 @@ g8 <- df %>%
 
 
 ```
-
 
 De acuerdo con la figura @ref(fig:promheta), se observan diferencias significativas en el promedio de horas habituales entre los grupos etarios a lo largo de la serie temporal. Aunque todos los tramos etarios experimentan cambios significativos en sus tendencias hacia una reducción en las horas habituales, aquellos que se encuentran en el rango de 15 a 29 años trabajan, en promedio, menos horas que los demás grupos. Esto puede atribuirse a diversos factores, como la dedicación a estudios, la participación en jornadas parciales y otros aspectos relacionados con la inserción laboral. En contraste, los individuos de 45 a 59 años son quienes registran la mayor cantidad promedio de horas trabajadas, seguidos por los adultos mayores (60 años o más) y la fuerza laboral de 30 a 44 años. Es importante destacar que, independientemente del grupo etario, todas las series exhiben variaciones estacionales distintivas, evidenciando un patrón cíclico.
 
@@ -949,7 +964,6 @@ g10 <- df %>%
 
 ```
 
-
 En la figura @ref(fig:promedhcine) se muestra la evolución del promedio de horas habituales según el nivel educacional alcanzado por los trabajadores. Como se aprecia, existe una tendencia a la disminución del promedio de horas entre los diferentes niveles educativos, con excepción de quienes poseen educación superior universitaria o más. Aunque muestra fluctuaciones en su tendencia en el largo plazo, lo cierto es que si en el comienzo de la serie en 2020 este grupo trabajó en promedio 42.9 horas, en el final de la serie en 2023 trabajó 42.7 horas habituales. A pesar de esto, continúa siendo el grupo que trabaja menos horas en comparación a los demás niveles educativos, posiblemente debido a mayores cualificaciones del empleo que se asocian a menores horas de trabajo. Esto es palpable en la serie completa entre grupos, ya que a medida que hay menor nivel educacional, mayor tiende a ser el promedio de horas de trabajo, siendo el grupo que tiene educación primaria o menos quienes más horas promedio presentan.
 
 ```{r promedhcine, echo=FALSE, fig.cap='Evolución promedio horas habituales según nivel educacional (2020-2023)'}
@@ -958,12 +972,9 @@ g9
 
 Analizando la distribución porcentual de las horas habituales según distintos niveles educativos (ver figura @ref(fig:tramheta)), se revelan patrones significativos. En el estrato educativo primario o inferior, se observa un crecimiento negativo solo en el tramo de 46 o más horas, mientras que el de 45 horas aún mantiene fluctuaciones positivas. El tramo de 41 a 44 horas destaca con el mayor ritmo de crecimiento, contrastando con el de 40 horas, que, aunque en terreno negativo, muestra una leve tendencia al crecimiento desde 2023. Para el nivel educativo secundario, la tendencia general se replica, pero con una distinción importante: el tramo de 40 horas experimenta un crecimiento positivo, especialmente después de 2023, superando eventualmente al de 45 horas. En el ámbito técnico y universitario o más, los tramos de mayores horas muestran una tendencia negativa, particularmente el de 46 o más horas y el de 45 horas. Aquí, los tramos de menor cantidad de horas lideran el ritmo de crecimiento, destacando el tramo de 40 horas que supera al de 41 a 44 en los últimos meses.
 
-
 ```{r tramhcine, echo=FALSE, fig.asp=0.9, out.height='90%', fig.cap='Tendencias porcentaje de trabajadores en tramos de horas habituales según nivel educacional (2020-2023)'}
 g10
 ```
-
-
 
 ```{r include=FALSE}
 
@@ -1045,14 +1056,11 @@ g12 <- df %>%
 
 En la figura @ref(fig:promedhciu) se muestra la evolución del promedio de horas habituales trabajadas según el grupo ocupacional de los trabajadores. Considerando la serie completa, los Profesionales, científicos e intelectuales son los que menos horas promedio presentan, seguidos por los Trabajadores de los servicios y vendedores de comercios y mercados. El menor tiempo de trabajo en estos grupos puede asociarse a mayores cualificaciones en el empleo que permiten jornadas menos extensas en el caso de los profesionales, y a regímenes laborales con jornadas parciales y más flexibles en el caso de los trabajadores de los servicios y comercio. Al contrario, quienes mayores horas promedio trabajan son los Operadores de instalaciones y máquinas y ensambladores, seguidos por los Agricultores y trabajadores calificados agropecuarios, forestales y pesqueros. Similarmente, los bajos grados de cualificación del empleo puede ser, entre otras, una de las razones detrás de esta distribución.
 
-
 Además, se observan diferentes tendencias entre los grupos ocupacionales. Aunque con sus propias fluctuaciones relevantes, y exceptuando a los grupos de Personal de apoyo administrativo y de Profesionales científicos e intelectuales, en todos los grupos ocupacionales se exhibe una clara tendencia a la disminución en las horas promedio de trabajo. Por un lado, el Personal de apoyo no presenta una tendencia clara ya que, al comienzo de la serie, parte en un punto bajo que luego aumenta, pero nuevamente cae al final de serie llegando al mismo punto del inicio. Por el otro, y contrario a los demás grupos, los Profesionales científico e intelectuales presentan una tendencia positiva, aumentando sus horas promedio de trabajo durante 2020 a 2023.
-
 
 ```{r promedhciu, echo=FALSE, fig.asp=0.9, out.height='90%', fig.cap='Evolución promedio horas habituales según grupo ocupacional (2020-2023)'}
 g11
 ```
-
 
 Observando la distribución porcentual de las horas habituales en diferentes grupos ocupacionales (ver figura @ref(fig:tramhciu)), se destacan diversas tendencias. En el grupo de los Agricultores y trabajadores calificados agropecuarios, forestales y pesqueros, solo el tramo de 45 horas presenta un ritmo de crecimiento claramente positivo, atribuible a jornadas laborales extensas, mientras que los demás tramos experimentan descensos, y los de menos horas muestran un leve repunte desde principios de 2023.
 
@@ -1072,14 +1080,9 @@ En los Trabajadores de servicios y comercio, caen los tramos de 46 y 45 horas, a
 
 En términos generales, es destacable la clara disminución del tramo de las 46 horas o más entre todos los grupos ocupacionales, lo cual sugiere una reducción global de las jornadas laborales extensas. Por otra parte, surge la pregunta sobre si hay un mayor crecimiento de los tramos de menos horas en grupos ocupacionales con empleos más cualificados, lo cual requiere de análisis adicionales en un futuro.
 
-
-
-
 ```{r tramhciu, echo=FALSE, fig.asp=1, out.height='100%', fig.cap='Tendencias porcentaje de trabajadores en tramos de horas habituales según grupo ocupacional (2020-2023)'}
 g12
 ```
-
-
 
 ```{r include=FALSE}
 
@@ -1151,9 +1154,7 @@ g14 <- df %>%
 
 ```
 
-
-Según tamaño de empresa, los resultados sugieren que hay diferencias relevantes en el promedio general de horas trabajadas (ver figura @ref(fig:promedhtam)). Las empresas de menos de 5 trabajadores y la gran empresa (200 o más trabajadores) son las que, en promedio, menos horas habituales de trabajo presentan en toda la serie. Luego, las micro, pequeña y mediana empresa muestran mayores valores promedio en sus horas de trabajo. Además, se aprecia una tendencia transversal y estable hacia la baja en las horas de trabajo entre los distintos tamaños de empresa, a pesar de fluctuaciones mensuales sin alzas o caídas significativas.  
-
+Según tamaño de empresa, los resultados sugieren que hay diferencias relevantes en el promedio general de horas trabajadas (ver figura @ref(fig:promedhtam)). Las empresas de menos de 5 trabajadores y la gran empresa (200 o más trabajadores) son las que, en promedio, menos horas habituales de trabajo presentan en toda la serie. Luego, las micro, pequeña y mediana empresa muestran mayores valores promedio en sus horas de trabajo. Además, se aprecia una tendencia transversal y estable hacia la baja en las horas de trabajo entre los distintos tamaños de empresa, a pesar de fluctuaciones mensuales sin alzas o caídas significativas.
 
 ```{r promedhtam, echo=FALSE, fig.asp=0.9, out.height='90%', fig.cap='Evolución promedio horas habituales según tamaño de empresa (2020-2023)'}
 g13
@@ -1161,12 +1162,9 @@ g13
 
 En la figura \@ref(fig:tramhemp) se muestra la variación anual acumulada del porcentaje de trabajadores en los tramos de horas habituales, según tamaño de empresa. Primero, los resultados indican que en las empresas de menos de 5 trabajadores el tramo de 46 horas o más disminuye sostenidamente, mientras que el de 45 horas presenta un ritmo de crecimiento positivo. En estas empresas, los tramos de menores horas comienzan a crecer solo desde mediados del 2022, pero especialmente a inicios del 2023 en donde el ritmo de crecimiento del tramo de 40 horas superó al de 41 a 44 horas. En la microempresa también cae notablemente el porcentaje de trabajadores en el tramo de 46 o más horas, mientras que los tramos de 45, 41 a 44 y 40 horas presentan crecimientos positivos y fluctuantes. La pequeña empresa exhibe una caída del tramo de 46 horas o más, mientras que el de 45 horas muestra crecimiento, pero se comienza a notar una tendencia a la baja. Los tramos de menores horas, por su parte, adquieren variaciones positivas a mediados del 2022, llegando a un ritmo de crecimiento similar o paralelo con el tramo de 45 horas a fines del 2023. En la mediana empresa la situación es similar en los tramos de mayores horas, sin embargo, el tramo de la 41 y 44 horas muestra un crecimiento sostenido desde fines del 2021, en tanto que el de 40 horas solo muestra señales positivas desde mediados del 2023. Por último, en la gran empresa el tramo de 46 horas o más disminuye, pero menos pronunciado en comparación a las demás empresas. Además, solo en estas empresas el tramo de 45 horas decrece, mientras que los tramos de 40 y 41 a 44 horas presentan tendencias positivas al alza, sobre todo desde fines del 2022.
 
-
 ```{r tramhemp, echo=FALSE, fig.asp=0.9, out.height='90%', fig.cap='Tendencias porcentaje de trabajadores en tramos de horas habituales según tamaño de empresa (2020-2023)'}
 g14
 ```
-
-
 
 # Conclusiones {#conclusion}
 
@@ -1226,44 +1224,6 @@ glosa <- cbind(letra,glosa)
 glosa %>% 
   knitr::kable(caption = "Clasificación Industrial Internacional Uniforme (CIIU 2012)", col.names = c("Letra", "Glosa"), booktabs = T, linesep = "") %>% 
 kable_styling(latex_options = c("striped", "HOLD_position"),font_size = 10)
-```
-
-
-
-## Anexo 2
-
-
-```{r echo=FALSE, fig.cap='Evolución distribución porcentual de trabajadores en tramos de 1 a 30 y 31 a 39 horas (2017-2023)'}
-
-df <- proc_db[[2]][c(1:3, 7, 10)] %>% 
-  dplyr::select(anotrim, hab_t, prop) %>% 
-  filter(hab_t %in% c("1 a 30", "31 a 39")) %>% 
-  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
-  pivot_wider(id_cols = anotrim,
-              names_from = hab_t,
-              values_from = prop) %>% 
-  rename(v1 = `1 a 30`,
-         v2 = `31 a 39`) %>% 
-  mutate(time = row_number())
-
-
-ggplot(data = df, mapping = aes(x = anotrim)) +
-  geom_line(aes(y = v1, group = 1, color = "Color 1"), linewidth = 0.8) +
-  geom_line(aes(y = v2, group = 1, color = "Color 2"), linewidth = 0.8) +
-  scale_y_continuous(
-    labels = function(prop){paste0(prop, "%")},
-    name = "% trabajadores",
-    n.breaks = 6) +
-  scale_x_discrete(breaks = trims) +
-  scale_color_manual(name = "Tramos horas habituales",
-                     values = c("Color 1" = "brown4", 
-                                "Color 2" = "darkviolet"),
-                     labels = c("1 a 30", 
-                                "31 a 39")) +
-  labs(y = "% trabajadores",
-       x = NULL,
-       caption = "Fuente: Elaboración propia en base a ENE.") 
-
 ```
 
 

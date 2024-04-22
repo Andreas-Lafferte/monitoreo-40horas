@@ -1,0 +1,1194 @@
+---
+geometry: "left=0cm,right=1.5cm,top=0cm,bottom=0cm"
+header-includes:
+- \usepackage{titling}
+- \pretitle{\begin{center}\LARGE\includegraphics[width=3cm]{logo.png}\\[\bigskipamount]}
+- \posttitle{\end{center}}
+- \usepackage[fontsize=12pt]{scrextend}
+- \usepackage{floatrow}
+- \usepackage{multicol}
+- \usepackage{fontspec}
+- \setmainfont{Georgia}
+- \floatsetup[figure]{capposition=top}
+- \floatsetup[table]{capposition=top}
+- \floatplacement{figure}{H}
+- \floatplacement{table}{h}
+- \usepackage{titlesec}
+- \newcommand{\sectionbreak}{\clearpage}
+- \usepackage{sectsty}
+- \sectionfont{\raggedright}
+- \subsectionfont{\raggedright}
+- \subsubsectionfont{\raggedright}
+- \newcommand{\centeredsection}[1]{\begin{center}\section*{#1}\end{center}} 
+output: 
+  bookdown::pdf_document2:
+    latex_engine: xelatex
+    extra_dependencies: ["color","xcolor","array","ragged2e","wrapfig","multicol","fancyhdr","hyphenat","tikz","amsmath"]
+    toc: no
+    highlight: tango
+    number_sections: TRUE
+link-citations: yes
+linkcolor: blue
+urlcolor: blue
+editor_options: 
+  chunk_output_type: inline
+bibliography: literatura/econometrics.bib     # bibliografia en bibtex
+csl: literatura/apa6.csl
+---
+
+\tolerance=1
+
+\emergencystretch=\maxdimen \hyphenpenalty=10000 \hbadness=10000
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, include = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+```{r paquetes, echo=FALSE}
+if (! require("pacman")) install.packages("pacman")
+
+pacman::p_load(knitr, 
+               tidyverse,
+               kableExtra,
+               here,
+               sjmisc,
+               summarytools,
+               cowplot,
+               rstatix,
+               tseries,
+               ggpubr,
+               forecast,
+               textreg,
+               stargazer,
+               lmtest, 
+               sandwich,
+               strucchange,
+               srvyr,
+               readxl,
+               countrycode)
+
+options(scipen=999)
+options(survey.lonely.psu = "certainty")
+rm(list = ls())
+```
+
+```{r datos, echo=FALSE}
+
+load(file = here("output", "proc_data_ene.RData"))
+load(file = here("output", "ene_transversal.RData"))
+
+ene <- lapply(ene, function(x){
+  as.data.frame(x) %>% 
+    filter(asal_priv == 1 & formal == 1)
+})
+
+ene_pond <- list(
+  as_survey_design(.data = ene[[1]], ids = 1, strata = estrato, weights = fact_cal),
+  as_survey_design(.data = ene[[2]], ids = 1, strata = estrato, weights = fact_cal)
+)
+
+oecd <- read_excel(path = here("input", "oecd_horas_hab_t.xlsx"),
+           sheet = 1, 
+           range = "B6:AT59") %>% 
+  select(-2, everything()) %>% 
+  rename(country = `Time period...1`, )
+
+oecd_long <- oecd[4:nrow(oecd),] 
+
+oecd_long  <- oecd_long  %>% 
+  pivot_longer(cols = -country,
+               names_to = "year",
+               values_to = "value") %>% 
+  mutate(country = as.factor(country),
+         country = gsub("[^[:alnum:][:space:]]", "", country),
+         year = as.numeric(year),
+         pais_name = countrycode::countrycode(country,"country.name.en", "iso3c"),
+         pais_name = if_else(is.na(pais_name), country, pais_name))
+
+```
+
+```{r funciones, echo=FALSE}
+
+miles <- function(x) {
+  format(round(as.numeric(x),0), big.mark = ".")
+}
+
+decimales <- function(x) {
+  format(round(as.numeric(x), 2), decimal.mark = ",")
+}
+
+# set theme
+
+#windowsFonts(`Times New Roman` = windowsFont("Times New Roman"))
+
+theme_nice <- function() {
+  theme_bw(base_size = 12) +
+    theme(legend.position = "bottom",
+          axis.title = element_text(size = 12),
+          axis.text.y = element_text(size = rel(1)),
+          plot.title = element_text(face = "bold", size = 12),
+          axis.text.x = element_text(angle = 90,
+                                     vjust = 0.5,
+                                     size = rel(1)))
+  
+  
+}
+
+theme_set(theme_nice())
+
+trims <- c(paste0(2017:2023, " son"))
+
+colores <- c("red", "blue", "darkgreen","darkorange", "brown4", "darkviolet")
+
+```
+
+```{=tex}
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\figurename}{Figura}
+```
+```{=tex}
+\definecolor{naranjodoc}{RGB}{0, 105, 184}
+\definecolor{naranjodocoscuro}{RGB}{0, 76, 133}
+```
+```{=tex}
+\begin{tikzpicture}
+ \draw [fill=naranjodoc] (0,0) rectangle (14,27.9);
+ \draw [fill=naranjodocoscuro] (14,0) rectangle (15,27.9);
+ \node[text=naranjodoc, font=\bfseries] at (18.3,25) {\Large Unidad de Estudios};
+  \node[text=naranjodoc, font=\bfseries] at (18.3,24) {\Large Laborales};
+ \node[right, text=white, font=\bfseries] at (1,17) {\Huge Informe de Resultados};
+ \node[right,text=white] at (1,15) {\Large Monitoreo de la implementación};
+  \node[right,text=white] at (1,14) {\Large de la reducción de la Jornada Laboral};
+ \node[right,text=white] at (1,13) {\Large a 40 horas con la Encuesta Nacional de Empleo };
+ 
+  \node[right,text=white, font=\bfseries] at (1,6) {\large Autor: };
+ \node[right, text=white] at (1,5.2) {\large Andreas Laffert};
+ 
+ \draw [fill=white] (0.5,4) rectangle (13.5,4.2);
+ \node[right, text=white, font=\bfseries] at (8,2) {Primera versión interna};
+  \node[right, text=white, font=\bfseries] at (8,1.5) {`r lubridate::today()`};
+ \node[inner sep=0pt] (ine) at (18.3,4)
+    {\includegraphics[width=2in,height=2in]{logo.PNG}};
+  \node[text=white] at (18,10) {};
+\end{tikzpicture}
+```
+\newpage
+
+\newgeometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+\newpage
+
+```{=tex}
+\setcounter{tocdepth}{2}
+\renewcommand{\contentsname}{Tabla de contenidos}
+```
+```{=tex}
+\hypersetup{linkcolor=black}
+\tableofcontents
+```
+\hypersetup{linkcolor=blue}
+
+\newpage
+
+\centeredsection{Resumen}
+
+\thispagestyle{empty} <!-- Para evitar numeración en la página del Resumen -->
+
+En este informe se presenta un análisis y propuesta metodológica de monitoreo de la reducción de la jornada laboral a 40 horas en el mercado del trabajo mediante encuestas de hogares. En específico, se analiza la evolución, composición y cambio de las horas habituales de trabajo de los asalariados formales del sector privado según diferentes características sociodemográficas y laborales. Utilizando datos provenientes de la Encuesta Nacional de Empleo del Instituto Nacional de Estadísticas (INE), se pueden destacar los siguientes hallazgos:
+
+-   
+
+-   
+
+-   
+
+\newpage
+
+# Introducción
+
+Este informe tiene el doble objetivo de presentar una metodología de monitoreo de la implementación de la Ley "40 horas" en la reducción de la jornada laboral, a la vez que busca describir y analizar cuantitativamente estos cambios en el mercado laboral. Para ello, toma como principal fuente de información los datos provistos por la Encuesta Nacional de Empleo del Instituto Nacional de Estadísticas (INE), enfocándose exclusivamente en los asalariados formales del sector privado debido a que son la principal población objetivo de esta medida y el grupo sobre el cual los servicios dependientes de la Subsecretaría del Trabajo pueden fiscalizar y regular.
+
+El documento se organiza en tres secciones. Primero, en la sección de [Antecedentes conceptuales y empíricos](#background) se revisan las principales definiciones conceptuales e indicadores respecto a las horas de trabajo, así como la evidencia internacional disponible en cuanto a su evolución en otros países.  Segundo, en el apartado de [Método](#method) se presentan los datos, variables y métodos estadísticos utilizados, detallando los procedimientos y tratamientos realizados a los datos. Tercero, en la sección de [Resultados](#results) se exponen los análisis estadísticos descriptivos y de series de tiempo empleados para analizar los cambios en la reducción de la jornada laboral. Por último, en la sección de [Conclusiones](#conclusion) se exponen los principales resultados y diagnóstico general de los cambios en la jornada laboral, además de presentar las limitaciones y sugerencias de la metodología propuesta.
+
+# Antecedentes conceptuales y empíricos {#background}
+
+
+```{r promoecd, echo=FALSE, fig.cap='Evolución promedio de horas semanales habituales trabajadas en el empleo principal, países OECD (1980-2022)'}
+
+datos <- oecd_long %>% 
+  filter(country %in% c("Chile", "OECD", "Portugal", "Mexico",
+                        "Colombia", "Brazil", "United States", 
+                        "Norway")) %>% 
+  na.omit() 
+
+
+etiqueta <- datos %>% 
+  group_by(pais_name) %>% 
+  summarise(value = last(value),
+            year = 2022)
+
+etiqueta$value[etiqueta$pais_name=="BRA"] <- 40.0
+
+ggplot(datos, aes(x = year, y = value, group = pais_name)) +
+  geom_line(linewidth = .7, color = "grey25") +
+  geom_point(size = 1.5, shape = 19, color = "grey25") +
+  geom_line(data = subset(datos, country == "Chile"), color = "red", linewidth = .7) +
+  geom_point(data = subset(datos, country == "Chile"), color = "red", size = 1.5, shape = 19) +
+  geom_line(data = subset(datos, country == "OECD"), color = "steelblue", linewidth = .7) +
+  geom_point(data = subset(datos, country == "OECD"), color = "steelblue", size = 1.5, shape = 19) +
+  geom_text(data = etiqueta, 
+            aes(label = pais_name),
+            nudge_x = 1.5,
+            size = 3) + 
+  geom_text(data = subset(datos, country == "Chile")[27,], 
+            aes(label = pais_name),
+            nudge_x = 1.5,
+            size = 3,
+            color = "red") +
+  geom_text(data = subset(datos, country == "OECD")[40,], 
+            aes(label = pais_name),
+            nudge_x = 1.5,
+            size = 3,
+            color = "steelblue") +
+  scale_y_continuous(labels = decimales, n.breaks = 8) +
+  scale_x_continuous(breaks = seq(1980,2022, by = 4)) +
+  labs(x = NULL,
+       y = "Promedio horas habituales trabajadas",
+       caption = "Fuente: Elaboración propia en base a datos OECD")
+
+
+```
+
+Durante los últimos 150 años, ha habido una disminución significativa en las horas de trabajo a nivel mundial, resultado de reducciones en los horarios diarios, semanales y anuales de trabajo. Buena parte de esta disminución se asocia tanto a los cambios tecnológicos y productivos experimentados en los siglos anteriores, así como a las diversas normas y marcos institucionales que lo han regulado a lo largo de la historia. Si bien muchos países han experimentado reducciones continuas en las horas de trabajo en las últimas décadas, persisten notables divergencias entre diferentes naciones. Centrándonos en los últimos 70 años y considerando países más allá de los primeros industrializados, los datos muestran una reducción continua en las horas de trabajo para muchas naciones junto con disparidades notables. Por ejemplo, Alemania ha experimentado una disminución continua, en contraste con los Estados Unidos, donde la disminución se ha estabilizado en los últimos años. Algunos países exhiben un patrón en forma de U invertida, como Corea del Sur, donde las horas aumentaron hasta la década de 1980 antes de disminuir, mientras que otros, como China, experimentaron aumentos en la década de 1990 y principios de los 2000 antes de estabilizarse.
+
+
+
+
+
+
+
+```{r tablaoecd, echo=FALSE}
+
+a <- datos %>%
+  filter(year >= 2002) %>% 
+  group_by(country) %>%
+  filter(year == min(year) | year == max(year)) %>% 
+  mutate(year = if_else(year == min(year), 0, year),
+         year = if_else(year == max(year), 1, year)) %>% 
+  pivot_wider(id_cols = c(country, pais_name),
+              names_from = year,
+              values_from = value,
+              names_glue = "{.value}_{year}") %>% 
+  ungroup() %>% 
+  mutate_if(is.numeric, ~ round(., 2)) %>% 
+  rowwise() %>% 
+  mutate(dif = value_0 - value_1)
+
+# a %>% 
+#  ggplot(aes(x = value_1, y = value_0)) +
+#  geom_smooth(formula = y ~ x, method = "lm", se = TRUE, alpha = .2) +
+#  geom_point(size = 3) +
+#  geom_point(data = subset(a, country == "Chile"), color = "red", size = 3) +
+#  geom_point(data = subset(a, country == "OECD"), color = "red", size = 3) +
+#  scale_x_continuous(labels = decimales, breaks = seq(32,48, by = 1.5)) +
+#  scale_y_continuous(labels = decimales, n.breaks = 10) +
+#  geom_text(aes(label = pais_name),
+#            nudge_y = -1,
+#            size = 3) +
+#  geom_text(data = subset(a, country %in% c("Chile", "OECD")), 
+#            aes(label = pais_name),
+#            nudge_y = -1,
+#            size = 3,
+#            color = "red") +
+#  labs(x = "Promedio horas habituales trabajadas 2022",
+#      y = "Promedio horas habituales trabajadas 2002",
+#      caption = "Fuente: Elaboración propia en base a datos OECD")
+
+
+# Crear la tabla con kable
+
+a %>% 
+  mutate(pais = countrycode::countrycode(country,"country.name.en", "un.name.es"),
+         pais = if_else(is.na(pais), country, pais)) %>% 
+  select(pais, value_0, value_1, dif) %>% 
+  arrange(-dif) %>% 
+  kable(format = "latex", booktabs= T, escape = F, align = 'c', caption = "Comparación cambio en promedio de horas semanales habituales trabajadas en el empleo principal, países OECD 2002 y 2022", col.names = c("País", "2002", "2022", "Cambio")) %>%
+  kable_styling(latex_options = c("striped", "HOLD_position"), font_size = 12, full_width = T) %>%
+    row_spec(0, bold = T) %>% 
+  kableExtra::add_footnote(label = "Fuente: Elaboración propia en base a datos OECD", notation = "none")
+
+
+
+```
+
+
+
+
+
+
+# Datos, variables y métodos {#method}
+
+## Datos
+
+Este reporte se basa en la información proporcionada por la Encuesta Nacional de Empleo del [Instituto Nacional de Estadísticas (INE)](https://www.ine.gob.cl) desde el año 2017 al trimestre móvil septiembre-octubre-noviembre del 2023. Esta base de datos se sustenta en la aplicación de cuestionarios presenciales, de manera telefónica o mixta. El diseño muestral complejo es de tipo probabilístico, estratificado y bietápico. La unidad de análisis son los individuos en edad de trabajar con residencia habitual en hogares ubicados en viviendas particulares ocupadas dentro del territorio nacional.
+
+## Variables
+
+### Horas de trabajo
+
+Las **horas de trabajo** se miden de a partir de las horas habituales trabajadas en la ocupación principal declaradas por las personas. El nivel de medición de esta variable es de razón (aunque no existan casos cuyas horas habituales sean 0 ya que no formarían parte de los asalariados). Esta variable es tratada de forma numérica y categórica en tramos de interés. Los valores 888 y 999 son removidos ya que corresponden a valores no sabe/no responde y perdidos, respectivamente.
+
+### Sociodemográficas
+
+El **sexo** de las personas es una variable categórica con nivel de medición tipo nominal *(dummy)*
+
+La **edad** de las personas es continua y con nivel de medición de razón, pero en este reporte se trata como una variable ordinal recodificada en tramos de edad.
+
+El **nivel educacional** alcanzado por las personas tiene un nivel de medición ordinal, pero es tratada como una variable ordinal colapsada en agrupaciones que señalan los niveles educativos obtenidos de acuerdo a la Clasificación Internacional Normalizada de la Educación (CINE).
+
+### Laborales
+
+El **grupo ocupacional** se mide a partir de una variable nominal de acuerdo con la Clasificación Internacional Uniforme de Ocupaciones CIUO 08 adaptado a Chile.
+
+El **sector de actividad económica** de la empresa donde trabajan las personas se mide a partir de una variable nominal de acuerdo con el Clasificador de Actividades Económicas Nacional para Encuestas Sociodemográficas (CAENES), que es el resultado de la adaptación del Clasificador Chileno de Actividades Económicas CIIU4.CL 2012.
+
+El **tamaño de empresa** en donde trabajan las personas se mide a partir de una variable nominal ordinal, que es resultado de una agrupación realizada de acuerdo con el número de trabajadores reportado.
+
+En la tabla \@ref(tab:brown2) se presentan los posibles valores que pueden tomar las variables utilizadas.
+
+
+## Métodos
+
+Se realizan análisis descriptivos univariados y bivariados, utilizando estimaciones puntuales a nivel poblacional junto con sus respectivas medidas de confiabilidad y error. Además, para los parámetros en series de tiempo se emplean análisis de regresión para cambios estructurales (MCO) y análisis de variaciones acumuladas. Los modelos de regresión lineal (MCO) son apropiados para identificar cambios estructurales en series de tiempo, ya que permiten estimar relaciones entre variables y detectar posibles rupturas en tendencias o patrones [@andrewsTestsParameterInstability1993a]. Por otro lado, el análisis de variaciones acumuladas complementa esta metodología al proporcionar una perspectiva acumulativa de los cambios en la serie temporal.
+
+
+```{r brown2, echo=FALSE}
+
+# Datos de la tabla
+tabla <- data.frame(
+  Tipo = c("Principal", "Principal", "Principal", "Principal", "Principal", "Principal", "Sociodemográficas","Sociodemográficas", "Sociodemográficas", "Sociodemográficas", "Sociodemográficas", "Sociodemográficas", "Sociodemográficas", "Sociodemográficas", "Sociodemográficas", "Sociodemográficas",  "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales", "Laborales"), 
+  Variable = c("Horas habituales de trabajo", "Tramo horas habituales de trabajo", "Tramo horas habituales de trabajo", "Tramo horas habituales de trabajo", "Tramo horas habituales de trabajo", "Tramo horas habituales de trabajo", "Sexo", "Sexo", "Edad", "Edad", "Edad", "Edad", "Nivel educacional (CINE 2011)", "Nivel educacional (CINE 2011)", "Nivel educacional (CINE 2011)", "Nivel educacional (CINE 2011)", "Grupo ocupacional (CIUO 08)", "Grupo ocupacional (CIUO 08)", "Grupo ocupacional (CIUO 08)", "Grupo ocupacional (CIUO 08)", "Grupo ocupacional (CIUO 08)", "Grupo ocupacional (CIUO 08)", "Grupo ocupacional (CIUO 08)", "Grupo ocupacional (CIUO 08)", "Grupo ocupacional (CIUO 08)", "Sector de actividad económica CAENES (adaptación de CIIU Rev. 4.cl)", "Tamaño de empresa (número de trabajadores)", "Tamaño de empresa (número de trabajadores)", "Tamaño de empresa (número de trabajadores)", "Tamaño de empresa (número de trabajadores)", "Tamaño de empresa (número de trabajadores)"), 
+  Operacionalización = c("Total horas habituales de la ocupación principal", "1 a 30 horas", "31 a 39 horas", "40 horas", "41 a 44 horas", "45 horas", "Hombre", "Mujer", "15 a 29 años", "30 a 44 años", "45 a 59 años", "60 años o más",  "Primaria o menos", "Secundaria", "Técnica", "Universitaria o más", "Directores y gerentes", "Profesionales científicos e intelectuales", "Técnicos y profesionales de nivel medio", "Personal de apoyo administrativo", "Trabajadores de los servicios y vendedores de comercios y mercados", "Agricultores y trabajadores calificados agropecuarios, forestales y pesqueros", "Oficiales, operarios y artesanos de artes mecánicas y de otros oficios", "Operadores de instalaciones y máquinas y ensambladores", "Ocupaciones elementales", "Ver Anexo 1", "Menos de 5 trabajadores", "Micro empresa (entre 5 y 9 trabajadores)", "Pequeña empresa (entre 10 y 49 trabajadores)", "Mediana empresa (entre 50 y 199 trabajadores)", "Gran empresa (200 o más trabajadores)"), 
+  stringsAsFactors = FALSE
+)
+
+
+# Crear la tabla con kable
+tabla1 <- kable(tabla, format = "latex", booktabs= T, escape = F, align = 'c', caption = "Operacionalización de variables utilizadas") %>%
+  collapse_rows(columns = 1:2, valign = "top") %>% 
+  row_spec(0, bold = T) %>%  
+  kable_styling(latex_options = c("striped", "HOLD_position"),font_size = 9, full_width = T) %>% 
+  column_spec(column = 3, width = "6 cm") %>% 
+  column_spec(column = 1, width = "3 cm")
+
+tabla1
+
+```
+
+\newpage
+
+# Resultados {#results}
+
+## Total trabajadores asalariados formales del sector privado
+
+Desde mediados del 2017 hasta fines del 2023, las horas habituales de trabajo de los asalariados formales del sector privado se han reducido consistentemente. Como se observa en la Figura \@ref(fig:promh), si en 2017 el promedio era de 44,6 horas, en el 2023 alcanza las 43,5 horas, representando una disminución de 1 hora en promedio. La tendencia de la serie reafirma lo anterior (recta de regresión), mostrando que las horas habituales de trabajo se reducen en 0.02 puntos a medida que avanza el tiempo. Además, pareciera que el movimiento de la serie alrededor de la recta muestra oscilaciones por sobre y por debajo de esta de manera constante. Podría afirmarse que esta tendencia es producida por la caída global de las horas habituales de trabajo a causa de la pandemia en el 2020, la cual provocó pérdidas de masivas de empleo, un alza en la desocupación y una pérdida de las horas trabajadas, entre otros efectos [@monttChileImpactoCOVID192020]. Sin embargo, en los años 2021-2023 de recuperación paulatina del mercado laboral, se observa que esta tendencia a la baja de hecho continua, sin regresar a los niveles pre-pandemia.
+
+```{r include=FALSE}
+
+t_serie1 <- ts(proc_db[[1]]$media, start = c(2017, 8), end = c(2023, 10), frequency = 12)
+
+n <- nrow(proc_db[[1]])
+time_points <- 1:n
+
+m1 <- tslm(formula = t_serie1 ~ time_points)
+
+g1 <- ggplot(data.frame(time = time(t_serie1), values = as.vector(t_serie1)), aes(x = time, y = values)) +
+  geom_smooth(aes(color = "Recta de regresión (B = 0.02)"), method = "lm", se = FALSE, linetype = "solid", linewidth = 0.7) +
+  geom_line(aes(color = "Valores reales"), linetype = "solid", linewidth = 0.8) +
+  scale_y_continuous(labels = decimales, n.breaks = 5) +
+  scale_x_continuous(limits = c(2017, 2024), n.breaks = 10) +
+  labs(y = "Promedio horas habituales",
+       x = NULL,
+       color = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.") +
+    theme(axis.text.x = element_text(angle = 0,
+                                   vjust = 0.5,
+                                   size = rel(1)))
+
+
+```
+
+```{r promh, echo=FALSE, fig.cap='Evolución promedio horas habituales (2017-2023)'}
+g1
+```
+
+La tendencia general a la disminución de las horas habituales de trabajo también supone cambios en la distribución de los trabajadores entre los distintos tramos y tipos de jornadas laborales. En las Figuras \@ref(fig:tramh) y \@ref(fig:tramh2) se muestran la evolución de la distribución porcentual de los asalariados formales del sector privado en distintos tramos de horas habituales de trabajo. Por un lado, y en consonancia con la tendencia general del promedio, se observa una disminución en el porcentaje de trabajadores en los tramos de horas habituales más extensas, como lo son los tramos de 45 y 46 horas o más. Por el otro, aumenta la proporción de trabajadores en jornadas laborales con menos horas habituales de trabajo, como lo son el tramo de las 31 a 39 horas, 40 horas y el de 41 a 44 horas. Al respecto, es este último tramo el que ha presentado un mayor crecimiento exponencial desde fines del 2019 a la fecha. El tramo de las 31 a 39 horas también exhibe un aumento paulatino en la serie. Por su parte, el tramo de 40 horas muestra una tendencia sin mayores variaciones pero que se acentúa positivamente a comienzos del 2023. El tramo que ha disminuido en mayor medida corresponde al de las 46 horas o más, con una reducción del 8% (aprox.). De todas maneras, el tramo que más cantidad de trabajadores agrupa en toda la serie corresponde al de las 45 horas habituales, aunque con una considerable reducción del 68% al 63% de los trabajadores asalariados formales del sector privado.
+
+```{r include=FALSE}
+
+df <- proc_db[[2]][c(1:3, 7, 10)] %>% 
+  dplyr::select(anotrim, hab_t, prop) %>% 
+  filter(hab_t %in% c("40", "41 a 44", "45","46 o más")) %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  pivot_wider(id_cols = anotrim,
+              names_from = hab_t,
+              values_from = prop) %>% 
+  rename(v1 = `40`,
+         v2 = `41 a 44`,  
+         v3 = `45`,
+         v4 =`46 o más`) %>% 
+  mutate(time = row_number())
+  
+  
+g2 <- ggplot(data = df, mapping = aes(x = anotrim)) +
+  geom_line(aes(y = v1, group = 1, color = "Color 1"), linewidth = 0.8) +
+  geom_line(aes(y = v2, group = 1, color = "Color 2"), linewidth = 0.8) +
+  geom_line(aes(y = v3-40, group = 1, color = "Color 3"), linewidth = 0.8) +
+  geom_line(aes(y = v4, group = 1, color = "Color 4"), linewidth = 0.8) +
+  scale_y_continuous(
+    labels = function(prop){paste0(prop, "%")},
+    name = "% trabajadores",
+    n.breaks = 11,
+    sec.axis = sec_axis(~ . - min(.) + 40, 
+                        breaks = seq(40, 70, by = 5),
+                        labels = function(prop){paste0(prop, "%")})
+    ) +
+  scale_x_discrete(breaks = trims) +
+  scale_color_manual(name = "Tramos horas habituales",
+                     values = scales::hue_pal()(4),
+                     labels = c("40", 
+                                "41 a 44",
+                                "45 (eje derecho)", 
+                                "46 o más")) +
+  labs(y = "% trabajadores",
+       x = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.") 
+
+df <- proc_db[[2]][c(1:3, 7, 10)] %>% 
+  dplyr::select(anotrim, hab_t, prop) %>% 
+  filter(hab_t %in% c("1 a 30", "31 a 39")) %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  pivot_wider(id_cols = anotrim,
+              names_from = hab_t,
+              values_from = prop) %>% 
+  rename(v1 = `1 a 30`,
+         v2 = `31 a 39`) %>% 
+  mutate(time = row_number())
+
+
+g3 <- ggplot(data = df, mapping = aes(x = anotrim)) +
+  geom_line(aes(y = v1, group = 1, color = "Color 1"), linewidth = 0.8) +
+  geom_line(aes(y = v2, group = 1, color = "Color 2"), linewidth = 0.8) +
+  scale_y_continuous(
+    labels = function(prop){paste0(prop, "%")},
+    name = "% trabajadores",
+    n.breaks = 6) +
+  scale_x_discrete(breaks = trims) +
+  scale_color_manual(name = "Tramos horas habituales",
+                     values = c("Color 1" = "#619CFF", 
+                                "Color 2" = "#F564E3"),
+                     labels = c("1 a 30", 
+                                "31 a 39")) +
+  labs(y = "% trabajadores",
+       x = NULL,
+       caption = "Fuente: Elaboración propia en base a ENE.")   
+   
+
+```
+
+```{r tramh, echo=FALSE, fig.cap='Evolución de la distribución porcentual de trabajadores según tramos de horas habituales (2017-2023)'}
+
+g2
+
+```
+
+```{r tramh2, echo=FALSE, fig.cap='Evolución distribución porcentual de trabajadores en tramos de 1 a 30 y 31 a 39 horas (2017-2023)'}
+
+g3
+
+```
+
+Para examinar posibles cambios en la evolución de estos tramos, en la Tabla \@ref(tab:table1) se muestran los resultados de los modelos de regresión lineal para estimar el cambio estructural y de tendencia en la serie de los respectivos tramos entre 2022 y 2023[^1]. En el Modelo 1, correspondiente al tramo de 1 a 30 horas, se observa que el tiempo tiene un efecto positivo pero no significativo en la proporción de trabajadores en dicho tramo. Los resultados también sugieren que, después de la implementación de la Ley (cambio estructural), la proporción de trabajadores en este tramo disminuye significativamente. Sin embargo, es aún más llamativo notar que la interacción entre el tiempo y el cambio tenga un efecto positivo y significativo en dicha proporción de trabajadores. Sustantivamente, esto quiere decir que posterior al cambio estructural de la implementación de la Ly, la proporción de trabajadores en este tramo crece a medida que aumenta el tiempo. Distinto es el caso del grupo 31 a 39 horas, ya que el Modelo 2 sugiere que el tiempo tiene una influencia positiva, pero cuando observamos su efecto después del la Ley este efecto es negativo, aunque no significativo en ambos casos (ver Figura \@ref(fig:cambio1)).
+
+[^1]: Se utiliza el inicio del año 2023, correspondiente al trimestre móvil diciembre-enero-febrero y no el trimestre de marzo-abril-mayo de dicho año como punto de cambio, debido a que existe la posibilidad de que distintas empresas hayan comenzado a reducir la jornada laboral antes de la promulgación oficial de la Ley.
+
+```{r graficos}
+
+label_t <- proc_db[[12]][c(1:2, 10)] %>% 
+  filter(ano_trimestre >= 2022) %>% 
+  unique() %>% 
+  mutate(anotrim = factor(anotrim, levels = anotrim))
+
+g4 <- proc_db[[12]][c(1:3, 7, 10)] %>% 
+  filter(hab_t %in% c("1 a 30", "31 a 39") & ano_trimestre >= 2022) %>% 
+  mutate(hab_t = str_replace_all(hab_t, "\\s", "")) %>% 
+  pivot_wider(id_cols = c(ano_trimestre, mes_central, anotrim),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}") %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         time = row_number()) %>% 
+  pivot_longer(cols = c(prop_1a30, prop_31a39),
+               values_to = "value",
+               names_to = "names") %>% 
+  mutate(cambio = if_else(time >= 13, 1, 0),
+         cambio = as.factor(cambio),
+         names = if_else(names == "prop_1a30", "1 a 30", "31 a 39")) %>% 
+  ggplot(aes(x = time, y = value, color = cambio)) +
+  geom_line(linetype = "longdash") +
+  geom_smooth(method = "lm", 
+              formula = y ~ x, 
+              se = FALSE, 
+              linetype = "solid") +
+  facet_wrap(~names, scales = "free_y") +
+  scale_x_continuous(limits = c(1, 22), 
+                     breaks = c(1,6,10,13,18,22), 
+                     labels = label_t$anotrim[c(1,6,10,13,18,22)]) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     n.breaks = 5) +
+  scale_color_manual(values = scales::hue_pal()(2), 
+                     labels = c("Antes de la Ley", "Después de la Ley")) +  
+  labs(y = "% trabajadores",
+       x = NULL,
+       color = "Cambio",
+       caption = "Fuente: Elaboración propia en base a ENE.") 
+
+g5 <- proc_db[[12]][c(1:3, 7, 10)] %>% 
+  filter(hab_t %in% c("40", "41 a 44") & ano_trimestre >= 2022) %>% 
+  mutate(hab_t = str_replace_all(hab_t, "\\s", "")) %>% 
+  pivot_wider(id_cols = c(ano_trimestre, mes_central, anotrim),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}") %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         time = row_number()) %>% 
+  pivot_longer(cols = c(prop_40, prop_41a44),
+               values_to = "value",
+               names_to = "names") %>% 
+  mutate(cambio = if_else(time >= 13, 1, 0),
+         cambio = as.factor(cambio),
+         names = if_else(names == "prop_40", "40", "41 a 44")) %>% 
+  ggplot(aes(x = time, y = value, color = cambio)) +
+  geom_line(linetype = "longdash") +
+  geom_smooth(method = "lm", 
+              formula = y ~ x, 
+              se = FALSE, 
+              linetype = "solid") +
+  facet_wrap(~names, scales = "free_y") +
+  scale_x_continuous(limits = c(1, 22), 
+                     breaks = c(1,6,10,13,18,22), 
+                     labels = label_t$anotrim[c(1,6,10,13,18,22)]) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     n.breaks = 5) +
+  scale_color_manual(values = scales::hue_pal()(2), 
+                     labels = c("Antes", "Después")) +  
+  labs(y = "% trabajadores",
+       x = NULL,
+       color = "Cambio",
+       caption = "Fuente: Elaboración propia en base a ENE.") 
+
+g6 <- proc_db[[12]][c(1:3, 7, 10)] %>% 
+  filter(hab_t %in% c("45", "46 o más") & ano_trimestre >= 2022) %>% 
+  mutate(hab_t = str_replace_all(hab_t, "\\s", "")) %>% 
+  pivot_wider(id_cols = c(ano_trimestre, mes_central, anotrim),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}") %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         time = row_number()) %>% 
+  rename(prop_46omas = prop_46omás) %>% 
+  pivot_longer(cols = c(prop_45, prop_46omas),
+               values_to = "value",
+               names_to = "names") %>% 
+  mutate(cambio = if_else(time >= 13, 1, 0),
+         cambio = as.factor(cambio),
+         names = if_else(names == "prop_45", "45", "46 o más")) %>% 
+  ggplot(aes(x = time, y = value, color = cambio)) +
+  geom_line(linetype = "longdash") +
+  geom_smooth(method = "lm", 
+              formula = y ~ x, 
+              se = FALSE, 
+              linetype = "solid") +
+  facet_wrap(~names, scales = "free_y") +
+  scale_x_continuous(limits = c(1, 22), 
+                     breaks = c(1,6,10,13,18,22), 
+                     labels = label_t$anotrim[c(1,6,10,13,18,22)]) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     n.breaks = 5) +
+  scale_color_manual(values = scales::hue_pal()(2), 
+                     labels = c("Antes de la Ley", "Después de la Ley")) +  
+  labs(y = "% trabajadores",
+       x = NULL,
+       color = "Cambio",
+       caption = "Fuente: Elaboración propia en base a ENE.") 
+
+```
+
+```{r cambio1, echo=FALSE, fig.cap='Tendencias y cambios en porcentaje de trabajadores en tramos de 1 a 30 y 31 a 39 horas habituales (2022-2023)'}
+
+g4
+
+```
+
+```{r modelos}
+
+db1 <- proc_db[[12]][c(1:3, 7, 10)] %>% 
+  filter(hab_t %in% c("1 a 30") & ano_trimestre >= 2022) %>% 
+  mutate(hab_t = str_replace_all(hab_t, "\\s", "")) %>% 
+  pivot_wider(id_cols = c(ano_trimestre, mes_central, anotrim),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}") %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         time = row_number()) %>% 
+  select(ano_trimestre, mes_central, time, prop_1a30, anotrim) %>% 
+  mutate(cambio = if_else(time >= 13, 1, 0),
+         cambio = as.factor(cambio))
+
+db2 <- proc_db[[12]][c(1:3, 7, 10)] %>% 
+  filter(hab_t %in% c("31 a 39") & ano_trimestre >= 2022) %>% 
+  mutate(hab_t = str_replace_all(hab_t, "\\s", "")) %>% 
+  pivot_wider(id_cols = c(ano_trimestre, mes_central, anotrim),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}") %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         time = row_number()) %>% 
+  select(ano_trimestre, mes_central, time, prop_31a39, anotrim) %>% 
+  mutate(cambio = if_else(time >= 13, 1, 0),
+         cambio = as.factor(cambio))
+
+db3 <- proc_db[[12]][c(1:3, 7, 10)] %>% 
+  filter(hab_t %in% c("40") & ano_trimestre >= 2022) %>% 
+  mutate(hab_t = str_replace_all(hab_t, "\\s", "")) %>% 
+  pivot_wider(id_cols = c(ano_trimestre, mes_central, anotrim),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}") %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         time = row_number()) %>% 
+  select(ano_trimestre, mes_central, time, prop_40, anotrim) %>% 
+  mutate(cambio = if_else(time >= 13, 1, 0),
+         cambio = as.factor(cambio))
+
+db4 <- proc_db[[12]][c(1:3, 7, 10)] %>% 
+  filter(hab_t %in% c("41 a 44") & ano_trimestre >= 2022) %>% 
+  mutate(hab_t = str_replace_all(hab_t, "\\s", "")) %>% 
+  pivot_wider(id_cols = c(ano_trimestre, mes_central, anotrim),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}") %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         time = row_number()) %>% 
+  select(ano_trimestre, mes_central, time, prop_41a44, anotrim) %>% 
+  mutate(cambio = if_else(time >= 13, 1, 0),
+         cambio = as.factor(cambio))
+
+db5 <- proc_db[[12]][c(1:3, 7, 10)] %>% 
+  filter(hab_t %in% c("45") & ano_trimestre >= 2022) %>% 
+  mutate(hab_t = str_replace_all(hab_t, "\\s", "")) %>% 
+  pivot_wider(id_cols = c(ano_trimestre, mes_central, anotrim),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}") %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         time = row_number()) %>% 
+  select(ano_trimestre, mes_central, time, prop_45, anotrim) %>% 
+  mutate(cambio = if_else(time >= 13, 1, 0),
+         cambio = as.factor(cambio))
+
+db6 <- proc_db[[12]][c(1:3, 7, 10)] %>% 
+  filter(hab_t %in% c("46 o más") & ano_trimestre >= 2022) %>% 
+  mutate(hab_t = str_replace_all(hab_t, "\\s", "")) %>% 
+  pivot_wider(id_cols = c(ano_trimestre, mes_central, anotrim),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}") %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         time = row_number()) %>% 
+  select(ano_trimestre, mes_central, time, prop_46omas = prop_46omás, anotrim) %>% 
+  mutate(cambio = if_else(time >= 13, 1, 0),
+         cambio = as.factor(cambio))
+
+m1 <- lm(formula = prop_1a30 ~ time*cambio, data = db1)
+m2 <- lm(formula = prop_31a39 ~ time*cambio, data = db2)
+m3 <- lm(formula = prop_40 ~ time*cambio, data = db3)
+m4 <- lm(formula = prop_41a44 ~ time*cambio, data = db4)
+m5 <- lm(formula = prop_45 ~ time*cambio, data = db5)
+m6 <- lm(formula = prop_46omas ~ time*cambio, data = db6)
+
+
+```
+
+```{r table1, echo=FALSE, results='asis'}
+
+modelos1 <- list(m1, m2, m3, m4, m5, m6)
+
+texreg::texreg(modelos1, 
+               caption = paste("(\\#tab:table1)","Modelos de regresión lineal para cambio estructural y tendencia para tramos de horas habituales."),
+               caption.above = T, 
+               custom.model.names = c("Modelo 1",
+                                      "Modelo 2",
+                                      "Modelo 3", 
+                                      "Modelo 4", 
+                                      "Modelo 5", 
+                                      "Modelo 6"),
+               custom.coef.names = c("Intercepto", "Tiempo", "Cambio", "Tiempo*Cambio"),
+               float.pos = "h!",
+               use.packages = F, 
+               booktabs = TRUE)
+
+```
+
+En cuanto a los tramos de las 40 y 41 a 44 horas habituales, los resultados sugieren direcciones similares en sus efectos (ver Figura \@ref(fig:cambio2)). A partir del Modelo 3, correspondiente al grupo de las 40 horas, se aprecia que el tiempo tiene un efecto de hecho negativo antes del cambio ($\beta$ = -2.03, $p$ \< .01), pero que posterior a este, el efecto del tiempo incrementa en 0.20 puntos ($p$ \< .001) la tendencia de la proporción de trabajadores en este tramo. Esto implica que el efecto conjunto de la promulgación de la Ley y el tiempo se asocian con un incremento significativo en la proporción de trabajadores en el tramo de las 40 horas, siendo incluso el coeficiente más grande entre los tramos. En el Modelo 4 los resultados son similares, pues sugieren que la tendencia de este grupo se incrementa posterior al cambio, ya que el efecto de interacción entre este y el tiempo es positivo y estadísticamente significativo. Esto implica que el efecto de la promulgación de la Ley se asocia con la tendencia al aumento de trabajadores en el tramo de 41 a 44 horas habituales.
+
+```{r cambio2, echo=FALSE, fig.cap='Tendencias y cambios en porcentaje de trabajadores en tramos de 40 y 41 a 44 horas habituales (2022-2023)'}
+
+g5
+
+```
+
+Por último, los resultados sugieren comportamientos similares entre los grupos de 45 y de 46 horas o más (ver Figura \@ref(fig:cambio3)). Aunque el Modelo 6 no muestra resultados estadísticamente significativos, muestra que posterior al cambio estructural, la pendendiente del efecto del tiempo en la proporción de trabajadores en el tramo de 45 horas se torna negativa. Esto puede estar sugiriendo que el efecto del tiempo posterior a la promulgación de la Ley se asocia negativamente con la cantidad de trabajadores en este tramo. Esto es mucho más notorio en el grupo de mayores horas habituales, el de 46 horas o más. El Modelo 6 también sugiere que, posterior al cambio, el efecto del tiempo en la proporción de trabajadores en este tramo es negativo y estadísticamente significativo ($\beta$ = -0.14, $p$ \< .05). Con todo, estos resultados indican que, posiblemente, la promulgación de la Ley ha tenido impactos significativos en reducir la cantidad de trabajadores en tramos horarios más extensos en el tiempo, a la vez que ha inducido a incrementar su proporción en jornadas laborales de menos horas. 
+
+```{r cambio3, echo=FALSE, fig.cap='Tendencias y cambios en porcentaje de trabajadores en tramos de 45 y 46 o más horas habituales (2022-2023)'}
+
+g6
+
+```
+
+Análisis de cambio estrictural en anexo 2
+
+## Sexo
+
+En la Figura \@ref(fig:tramhsexo) se muestra la variación anual acumulada del porcentaje de trabajadores en los tramos de horas habituales, diferenciados por sexo. Ambos grupos muestran una clara disminución en el porcentaje de trabajadores en tramos de 45 o 46 horas o más, mientras que los tramos de 40 y 41 a 44 horas presentan tendencias positivas.
+
+```{r include=FALSE}
+
+df <- proc_db[[13]] %>% 
+  #filter(hab_t %in% c("40", "41 a 44", "45", "46 o más")) %>% 
+  mutate(hab_t = str_replace_all(hab_t, "\\s", ""),
+         anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  pivot_wider(id_cols = c(anotrim, sexo),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}")
+
+df$dif_1_30 <- NA
+df$dif_31_39 <- NA
+df$dif_40 <- NA
+df$dif_41_44 <- NA
+df$dif_45 <- NA
+df$dif_46_mas <- NA
+
+df[25:nrow(df),9:14] <- df[25:nrow(df),3:8] - df[1:(nrow(df)-24),3:8]
+
+df <- df %>% 
+  select(anotrim, sexo, starts_with("dif")) %>% 
+  na.omit()
+
+df$acum_1_30 <- ave(df$dif_1_30, df$sexo, FUN = cumsum)
+df$acum_31_39 <- ave(df$dif_31_39, df$sexo, FUN = cumsum)
+df$acum_40 <- ave(df$dif_40, df$sexo, FUN = cumsum)
+df$acum_41_44 <- ave(df$dif_41_44, df$sexo, FUN = cumsum)
+df$acum_45 <- ave(df$dif_45, df$sexo, FUN = cumsum)
+df$acum_46_mas <- ave(df$dif_46_mas, df$sexo, FUN = cumsum)
+
+g7 <- df %>% 
+  select(anotrim, sexo, starts_with("acum")) %>% 
+  pivot_longer(cols = -c(1,2),
+               names_to = "names",
+               values_to = "value") %>% 
+  na.omit() %>% 
+  mutate(sexo = if_else(sexo == 1, "Hombres", "Mujeres"),
+         names = case_when(names == "acum_1_30" ~ "1 a 30",
+                           names == "acum_31_39" ~ "31 a 39",
+                           names == "acum_40" ~ "40",
+                           names == "acum_41_44" ~ "41 a 44",
+                           names == "acum_45" ~ "45",
+                           names == "acum_46_mas" ~ "46 o más")) %>% 
+  ggplot(aes(x = anotrim, y = value, group = names, color = names)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 def"), linetype = "dashed") +
+  geom_hline(aes(yintercept = 0), linetype = "solid", color = "black")+
+  facet_wrap(~sexo) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     n.breaks = 10) +
+  scale_x_discrete(breaks = c(trims, "2023 def")) +
+  labs(y = "Variación anual acumulada",
+       x = NULL,
+       color = "Tramos horas habituales",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+
+```
+
+```{r tramhsexo, echo=FALSE, fig.cap='Variación acumulada porcentaje de trabajadores en tramos de horas habituales según sexo (2020-2023)'}
+g7
+```
+
+De todas maneras, se observan diferencias entre sexos. Por un lado, la notable disminución en el tramo de 46 horas o más entre los hombres podría explicarse por su mayor representación entre los ocupados asalariados, lo que también justificaría la ausencia de valores negativos en el tramo de 45 horas para los hombres. Además, el tramo de 41 a 44 horas exhibe una tendencia positiva a lo largo de la serie, registrando el mayor crecimiento porcentual entre los hombres. Aunque en 2021 el tramo de 40 horas tenía valores negativos, a partir de 2022 ha experimentado un cambio positivo que se intensifica a principios de 2023 y que se ha mantenido. Por otro lado, los tramos de 40 y de 41 a 44 horas han experimentado un crecimiento más pronunciado entre las mujeres. De hecho, el tramo de las 45 horas toma valores negativos en este grupo, lo que implica que el crecimiento porcentual de las mujeres asalariadas formales del sector privado se ha concentrado en los tramos de menores horas. En detalle, el tramo de 41 a 44 horas exhibe una tendencia positiva a lo largo de la serie para este grupo, mientras que el tramo de 40 horas, inicialmente con valores negativos hasta finales de 2022, ha experimentado un crecimiento positivo desde entonces, incluso superando al tramo de 41 a 44 horas en los últimos meses de 2023. También cabe mencionar la sostenida tendencia hacia la baja del tramo de 1 a 30 horas entre las mujeres, reconocido como jornadas de trabajo parcial. En ese sentido, podría esperarse que buena parte de las mujeres asalariadas en este tipo de jornadas estén fluctuando hacia jornadas laborales más regulares (como 40 o 41 a 44 horas). Para validar estas tendencias, será necesario examinar las variaciones anuales en estos tramos en los trimestres venideros.
+
+## Edad
+
+Observando la distribución porcentual de los tramos de horas habituales dentro de cada grupo, resaltan diversas tendencias (ver Figura @ref(fig:tramheta)). En el grupo de 15 a 29 años, se observa un ritmo de crecimiento negativo en los tramos más irregulares (como el de 1 a 30 y el de 46 horas o más) y positivo en los tramos con menores horas, especialmente en los segmentos de 41 a 44 y 40 horas. Este último, desde principios de 2023, muestra un crecimiento incluso superior al de 45 horas. En el rango de 30 a 44 años, se registra una disminución en los tramos altos y en el de jornada parcial, además de un aumento en los bajos, siendo estos últimos mayores que el de 45 horas. Además, se destaca que el tramo de 40 horas supera ligeramente al de 41 a 44 horas en los últimos meses. En el grupo de 45 a 59 años, aunque no es evidente la tendencia a la baja en el tramo de 45 horas, se observa una disminución en el de 46 horas o más. Los tramos de 40 y 41 a 44 horas experimentan crecimiento, aunque no a un ritmo superior al de 45 horas. En la categoría de 60 años o más, destaca la disminución en el tramo de 46 o más horas, mientras que los demás muestran oscilaciones. Es claro que el tramo de 45 horas no toma valores negativos, y solo a principios de 2023 el segmento de 40 horas comienza a crecer, siendo el de mayor ritmo de crecimiento entre los adultos mayores.
+
+```{r tramheta, echo=FALSE, fig.asp=0.9, out.height='90%', fig.cap='Variación acumulada porcentaje de trabajadores en tramos de horas habituales según tramo etario (2020-2023)'}
+
+df <- proc_db[[14]] %>% 
+  #filter(hab_t %in% c("40", "41 a 44", "45", "46 o más")) %>% 
+  mutate(hab_t = str_replace_all(hab_t, "\\s", ""),
+         anotrim = factor(anotrim, levels = unique(anotrim)))  %>% 
+  pivot_wider(id_cols = c(anotrim, edad_t),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}")
+
+df$dif_1_30 <- NA
+df$dif_31_39 <- NA
+df$dif_40 <- NA
+df$dif_41_44 <- NA
+df$dif_45 <- NA
+df$dif_46_mas <- NA
+
+df[49:nrow(df),9:14] <- df[49:nrow(df),3:8] - df[1:(nrow(df)-48),3:8]
+
+df <- df %>% 
+  select(anotrim, edad_t, starts_with("dif")) %>% 
+  na.omit()
+
+
+df$acum_1_30 <- ave(df$dif_1_30, df$edad_t, FUN = cumsum)
+df$acum_31_39 <- ave(df$dif_31_39, df$edad_t, FUN = cumsum)
+df$acum_40 <- ave(df$dif_40, df$edad_t, FUN = cumsum)
+df$acum_41_44 <- ave(df$dif_41_44, df$edad_t, FUN = cumsum)
+df$acum_45 <- ave(df$dif_45, df$edad_t, FUN = cumsum)
+df$acum_46_mas <- ave(df$dif_46_mas, df$edad_t, FUN = cumsum)
+
+
+g8 <- df %>% 
+  select(anotrim, edad_t, starts_with("acum")) %>% 
+  pivot_longer(cols = -c(1,2),
+               names_to = "names",
+               values_to = "value") %>% 
+  na.omit() %>% 
+  mutate(names = case_when(names == "acum_1_30" ~ "1 a 30",
+                           names == "acum_31_39" ~ "31 a 39",
+                           names == "acum_40" ~ "40",
+                           names == "acum_41_44" ~ "41 a 44",
+                           names == "acum_45" ~ "45",
+                           names == "acum_46_mas" ~ "46 o más")) %>% 
+  ggplot(aes(x = anotrim, y = value, group = names, color = names)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 def"), linetype = "dashed") +
+  geom_hline(aes(yintercept = 0), linetype = "solid", color = "black")+
+  facet_wrap(~edad_t) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     n.breaks = 5) +
+  scale_x_discrete(breaks = c(trims, "2023 def")) +
+  labs(y = "Variación anual acumulada",
+       x = NULL,
+       color = "Tramos horas habituales",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+
+
+g8
+```
+
+## Educación
+
+Analizando la distribución porcentual de las horas habituales según distintos niveles educativos (ver Figura @ref(fig:tramhcine)), se revelan patrones significativos. En el estrato educativo primario o inferior, se observa un crecimiento negativo solo en el tramo de 46 o más horas, mientras que el de 45 horas aún mantiene fluctuaciones positivas. El tramo de 41 a 44 horas destaca con el mayor ritmo de crecimiento, contrastando con el de 40 horas, que, aunque en terreno negativo, muestra una leve tendencia al crecimiento desde 2023. Para el nivel educativo secundario, la tendencia general se replica, pero con una distinción importante: el tramo de 40 horas experimenta un crecimiento positivo, especialmente después de 2023, superando eventualmente al de 45 horas. En el ámbito técnico y universitario o más, los tramos de mayores horas muestran una tendencia negativa, particularmente el de 46 o más horas, el de 45 horas y el de 1 a 30 horas. Aquí, los tramos regulares de menor cantidad de horas lideran el ritmo de crecimiento, destacando el tramo de 40 horas que supera al de 41 a 44 en los últimos meses.
+
+```{r tramhcine, echo=FALSE, fig.asp=0.9, out.height='90%', fig.cap='Variación acumulada porcentaje de trabajadores en tramos de horas habituales según nivel educacional (2020-2023)'}
+
+df <- proc_db[[15]] %>% 
+  #filter(hab_t %in% c("40", "41 a 44", "45", "46 o más")) %>% 
+   mutate(hab_t = str_replace_all(hab_t, "\\s", ""),
+         anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  pivot_wider(id_cols = c(anotrim, cine),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}")
+
+df$dif_1_30 <- NA
+df$dif_31_39 <- NA
+df$dif_40 <- NA
+df$dif_41_44 <- NA
+df$dif_45 <- NA
+df$dif_46_mas <- NA
+
+df[49:nrow(df),9:14] <- df[49:nrow(df),3:8] - df[1:(nrow(df)-48),3:8]
+
+df <- df %>% 
+  select(anotrim, cine, starts_with("dif")) %>% 
+  na.omit()
+
+df$acum_1_30 <- ave(df$dif_1_30, df$cine, FUN = cumsum)
+df$acum_31_39 <- ave(df$dif_31_39, df$cine, FUN = cumsum)
+df$acum_40 <- ave(df$dif_40, df$cine, FUN = cumsum)
+df$acum_41_44 <- ave(df$dif_41_44, df$cine, FUN = cumsum)
+df$acum_45 <- ave(df$dif_45, df$cine, FUN = cumsum)
+df$acum_46_mas <- ave(df$dif_46_mas, df$cine, FUN = cumsum)
+
+
+g9 <- df %>% 
+  select(anotrim, cine, starts_with("acum")) %>% 
+  pivot_longer(cols = -c(1,2),
+               names_to = "names",
+               values_to = "value") %>% 
+  na.omit() %>% 
+  mutate(names = case_when(names == "acum_1_30" ~ "1 a 30",
+                           names == "acum_31_39" ~ "31 a 39",
+                           names == "acum_40" ~ "40",
+                           names == "acum_41_44" ~ "41 a 44",
+                           names == "acum_45" ~ "45",
+                           names == "acum_46_mas" ~ "46 o más")) %>% 
+  ggplot(aes(x = anotrim, y = value, group = names, color = names)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 def"), linetype = "dashed") +
+  geom_hline(aes(yintercept = 0), linetype = "solid", color = "black")+
+  facet_wrap(~cine) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     n.breaks = 5) +
+  scale_x_discrete(breaks = c(trims, "2023 def")) +
+  labs(y = "Variación anual acumulada",
+       x = NULL,
+       color = "Tramos horas habituales",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+
+
+g9
+```
+
+## Grupo ocupacional
+
+Observando la distribución porcentual de las horas habituales en diferentes grupos ocupacionales (ver Figura @ref(fig:tramhciu)), se destacan diversas tendencias. En el grupo de Directores y gerentes, el tramo de 45 horas disminuye pero aún no alcanza terreno negativo, mientras que el de 46 horas muestra un ritmo claramente negativo. Los tramos de menos horas tenían crecimientos negativos hasta principios de 2023, cuando empezaron a liderar el crecimiento, especialmente el de 40 horas. En el ámbito de los Profesionales científicos e intelectuales, el tramo de 45 horas cae, pero aún no en terreno negativo, mientras que los tramos de 1 a 30 y de 46 horas o más presentan un ritmo negativo claro. Los tramos de menos horas tenían crecimientos negativos hasta mediados de 2022, cuando comenzaron a mostrar tendencias positivas tanto en el tramo de 40 horas como en el de 41 a 44, aunque aún no superan el ritmo del tramo de 45 horas. En el grupo de Técnicos y profesionales de nivel medio, los tramos de mayores horas caen notablemente, mientras que los de menores horas muestran una tendencia al crecimiento exponencial desde mediados de 2022, liderando el crecimiento en este grupo. En el grupo de Personal de apoyo administrativo no hay variaciones sustantivas, aunque de todas maneras los tramos de más horas decrecen con un ritmo negativo, mientras que los de menos horas muestran tendencias positivas desde principios de 2023, especialmente el tramo de 40 horas con las mayores variaciones positivas. En los Trabajadores de servicios y comercio, caen los tramos de 46, 45 y de 1 a 30 horas. Los tramos de menores horas crecen en mayor medida desde mediados de 2022 hasta la actualidad. En el grupo de los Agricultores y trabajadores calificados agropecuarios, forestales y pesqueros, solo el tramo de 45 horas presenta un ritmo de crecimiento claramente positivo, atribuible a jornadas laborales extensas, mientras que los demás tramos experimentan descensos, y los de menos horas muestran un leve repunte desde principios de 2023. En los Oficiales, operarios y artesanos de artes mecánicas y de otros oficios se observa una disminución notable en el tramo de 46 horas, mientras que el de 45 horas sigue a la baja, pero mantiene ritmos positivos. El tramo de 40 horas muestra variaciones positivas recién a finales de 2023, siendo el de 41 a 44 el que más crece. Para los Operadores de instalaciones, el tramo de 46 horas o más presenta una notoria tendencia a la disminución, mientras que los demás tramos horarios muestran variaciones acumuladas poisitivas, especialmente los tramos de 41 a 44 y 45 horas. En el grupo de Ocupaciones elementales, el tramo de 46 horas cae, el de 40 horas experimenta variaciones negativas, y los de 45 y 41 a 44 horas presentan ritmos positivos, en donde este último supera al primero a finales de 2023. 
+
+En términos generales, es destacable la clara disminución del tramo de las 46 horas o más entre todos los grupos ocupacionales, lo cual sugiere una reducción global de las jornadas laborales extensas. Por otra parte, surge la pregunta sobre si hay un mayor crecimiento de los tramos de menos horas en grupos ocupacionales con empleos más cualificados, lo cual requiere de análisis adicionales en un futuro.
+
+```{r tramhciu, echo=FALSE, fig.asp=1, out.height='100%', fig.cap='Variación acumulada porcentaje de trabajadores en tramos de horas habituales según grupo ocupacional (2020-2023)'}
+
+df <- proc_db[[16]] %>% 
+  filter(ciuo08 != "Otros no identificados") %>% 
+  mutate(hab_t = str_replace_all(hab_t, "\\s", ""),
+         anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  pivot_wider(id_cols = c(anotrim, ciuo08),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}")
+
+df$dif_1_30 <- NA
+df$dif_31_39 <- NA
+df$dif_40 <- NA
+df$dif_41_44 <- NA
+df$dif_45 <- NA
+df$dif_46_mas <- NA
+
+df[109:nrow(df),9:14] <- df[109:nrow(df),3:8] - df[1:(nrow(df)-108),3:8]
+
+df <- df %>% 
+  select(anotrim, ciuo08, starts_with("dif")) %>% 
+  na.omit()
+
+df$acum_1_30 <- ave(df$dif_1_30, df$ciuo08, FUN = cumsum)
+df$acum_31_39 <- ave(df$dif_31_39, df$ciuo08, FUN = cumsum)
+df$acum_40 <- ave(df$dif_40, df$ciuo08, FUN = cumsum)
+df$acum_41_44 <- ave(df$dif_41_44, df$ciuo08, FUN = cumsum)
+df$acum_45 <- ave(df$dif_45, df$ciuo08, FUN = cumsum)
+df$acum_46_mas <- ave(df$dif_46_mas, df$ciuo08, FUN = cumsum)
+
+
+g10 <- df %>% 
+  select(anotrim, ciuo08, starts_with("acum")) %>% 
+  pivot_longer(cols = -c(1,2),
+               names_to = "names",
+               values_to = "value") %>% 
+  na.omit() %>% 
+  mutate(names = case_when(names == "acum_1_30" ~ "1 a 30",
+                           names == "acum_31_39" ~ "31 a 39",
+                           names == "acum_40" ~ "40",
+                           names == "acum_41_44" ~ "41 a 44",
+                           names == "acum_45" ~ "45",
+                           names == "acum_46_mas" ~ "46 o más"),
+         ciuo08 = as.character(ciuo08),
+         ciuo08 = str_trunc(ciuo08, 30, "right"),
+         ciuo08 = factor(ciuo08, levels = unique(ciuo08))) %>% 
+  ggplot(aes(x = anotrim, y = value, group = names, color = names)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 def"), linetype = "dashed") +
+  geom_hline(aes(yintercept = 0), linetype = "solid", color = "black")+
+  facet_wrap(~ciuo08) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     breaks = seq(-50, 100, by = 25)) +
+  scale_x_discrete(breaks = c(trims, "2023 def")) +
+  labs(y = "Variación anual acumulada",
+       x = NULL,
+       color = "Tramos horas habituales",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+
+
+
+g10
+```
+
+## Tamaño de empresa
+
+En la Figura \@ref(fig:tramhemp) se muestra la variación anual acumulada del porcentaje de trabajadores en los tramos de horas habituales, según tamaño de empresa. Primero, los resultados indican que en las empresas de menos de 5 trabajadores el tramo de 46 horas o más disminuye sostenidamente, mientras que el de 45 horas presenta un ritmo de crecimiento positivo. En estas empresas, los tramos de menores horas comienzan a crecer solo desde mediados del 2022, pero especialmente a inicios del 2023 en donde el ritmo de crecimiento del tramo de 40 horas superó al de 41 a 44 horas. En la microempresa también cae notablemente el porcentaje de trabajadores en el tramo de 46 o más horas, mientras que los tramos de 45, 41 a 44 y 40 horas presentan crecimientos positivos y fluctuantes. La pequeña empresa exhibe una caída del tramo de 46 horas o más, mientras que el de 45 horas muestra crecimiento, pero se comienza a notar una tendencia a la baja. Los tramos de menores horas, por su parte, adquieren variaciones positivas a mediados del 2022, llegando a un ritmo de crecimiento similar o paralelo con el tramo de 45 horas a fines del 2023. En la mediana empresa la situación es similar en los tramos de mayores horas, sin embargo, el tramo de la 41 y 44 horas muestra un crecimiento sostenido desde fines del 2021, en tanto que el de 40 horas solo muestra señales positivas desde mediados del 2023. Por último, en la gran empresa el tramo de 46 horas o más y disminuye, pero menos pronunciado en comparación a las demás empresas. Además, solo en estas empresas el tramo de 45 horas decrece, a la vez que el tramo de 1 a 30 horas decae en mayor medida. Por su parte, los tramos de 40 y 41 a 44 horas presentan tendencias positivas al alza, sobre todo desde fines del 2022.
+
+```{r tramhemp, echo=FALSE, fig.asp=0.9, out.height='90%', fig.cap='Variación acumulada porcentaje de trabajadores en tramos de horas habituales según tamaño de empresa (2020-2023)'}
+
+df <- proc_db[[18]] %>% 
+  mutate(hab_t = str_replace_all(hab_t, "\\s", ""),
+         anotrim = factor(anotrim, levels = unique(anotrim))) %>% 
+  pivot_wider(id_cols = c(anotrim, tam_emp),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}")
+
+df$dif_1_30 <- NA
+df$dif_31_39 <- NA
+df$dif_40 <- NA
+df$dif_41_44 <- NA
+df$dif_45 <- NA
+df$dif_46_mas <- NA
+
+df[61:nrow(df),9:14] <- df[61:nrow(df),3:8] - df[1:(nrow(df)-60),3:8]
+
+df <- df %>% 
+  select(anotrim, tam_emp, starts_with("dif")) %>% 
+  na.omit()
+
+df$acum_1_30 <- ave(df$dif_1_30, df$tam_emp, FUN = cumsum)
+df$acum_31_39 <- ave(df$dif_31_39, df$tam_emp, FUN = cumsum)
+df$acum_40 <- ave(df$dif_40, df$tam_emp, FUN = cumsum)
+df$acum_41_44 <- ave(df$dif_41_44, df$tam_emp, FUN = cumsum)
+df$acum_45 <- ave(df$dif_45, df$tam_emp, FUN = cumsum)
+df$acum_46_mas <- ave(df$dif_46_mas, df$tam_emp, FUN = cumsum)
+
+
+g11 <- df %>% 
+  select(anotrim, tam_emp, starts_with("acum")) %>% 
+  pivot_longer(cols = -c(1,2),
+               names_to = "names",
+               values_to = "value") %>% 
+  na.omit() %>% 
+  mutate(names = case_when(names == "acum_1_30" ~ "1 a 30",
+                           names == "acum_31_39" ~ "31 a 39",
+                           names == "acum_40" ~ "40",
+                           names == "acum_41_44" ~ "41 a 44",
+                           names == "acum_45" ~ "45",
+                           names == "acum_46_mas" ~ "46 o más")) %>% 
+  ggplot(aes(x = anotrim, y = value, group = names, color = names)) +
+  geom_line(linewidth = 0.7) +
+  geom_vline(aes(xintercept = "2023 def"), linetype = "dashed") +
+  geom_hline(aes(yintercept = 0), linetype = "solid", color = "black")+
+  facet_wrap(~tam_emp, ncol = 2) +
+  scale_y_continuous(labels = function(prop){paste0(prop, "%")}, 
+                     breaks = seq(-50, 100, by = 25)) +
+  scale_x_discrete(breaks = c(trims, "2023 def")) +
+  labs(y = "Variación anual acumulada",
+       x = NULL,
+       color = "Tramos horas habituales",
+       caption = "Fuente: Elaboración propia en base a ENE.")
+
+
+g11
+```
+
+
+# Conclusiones {#conclusion}
+
+# Referencias
+
+::: {#refs}
+:::
+
+# Anexos
+
+## Anexo 1
+
+
+```{r echo=FALSE}
+glosa <- c("Agricultura, silvicultura y pesca",
+"Minería y canteras",
+"Industria Manufacturera",
+"Suministro de electricidad, gas, vapor y aire acondicionado",
+"Abastecimiento de agua; actividades de alcantarillado, gestión de desechos y rehabilitación",
+"Construcción",
+"Comercio al por mayor y al por menor; reparación de vehículos de motor y motocicletas",
+"Transporte y almacenamiento",
+"Alojamiento y actividades de servicio de comida",
+"Información y comunicación",
+"Actividades financieras y de seguros",
+"Actividades inmobiliarias",
+"Actividades profesionales, científicas y técnicas",
+"Actividades administrativas y de servicios de apoyo",
+"Administración pública y defensa; seguridad social obligatoria",
+"Educación",
+"Actividades de salud humana y trabajo social",
+"Artes, entretenimiento y recreación",
+"Otras actividades de servicios",
+"Actividades de los hogares como empleadores; actividades de los hogares (...)",
+"Actividades de las organizaciones y organismos extraterritoriales")
+
+letra <- c("A",
+           "B",
+           "C",
+           "D",
+           "E",
+           "F",
+           "G",
+           "H",
+           "I",
+           "J",
+           "K",
+           "L",
+           "M",
+           "N",
+           "O",
+           "P",
+           "Q",
+           "R",
+           "S",
+           "T",
+           "U")
+
+glosa <- cbind(letra,glosa)
+
+glosa %>% 
+  knitr::kable(caption = "Clasificación Industrial Internacional Uniforme (CIIU 2012)", col.names = c("Letra", "Glosa"), booktabs = T, linesep = "") %>% 
+kable_styling(latex_options = c("striped", "HOLD_position"),font_size = 10)
+```
+
+## Anexo 2
+
+```{r echo=FALSE, include=FALSE}
+
+df <- proc_db[[12]][c(1:3, 7, 10)] %>%
+  filter(ano_trimestre >= 2022) %>% 
+  mutate(hab_t = str_replace_all(hab_t, "\\s", "")) %>% 
+  pivot_wider(id_cols = c(ano_trimestre, mes_central, anotrim),
+              names_from = hab_t,
+              values_from = prop,
+              names_glue = "{.value}_{hab_t}") %>% 
+  mutate(anotrim = factor(anotrim, levels = unique(anotrim)),
+         time = row_number())
+
+df1 <- ts(data = df$prop_1a30, start = c(2022, 1), end = c(2023, 10), frequency = 12)
+
+plot(efp(df1 ~ 1, type = "Rec-CUSUM"))
+
+sctest(efp(df1 ~ 1, type = "Rec-CUSUM"))
+
+sctest(Fstats(formula = prop_1a30 ~ time, data = db1), type = "supF")
+
+sctest(Fstats(df1 ~ 1), type = "supF")
+
+efp(formula = prop_1a30 ~ time, data = db1, type = "Rec-CUSUM") %>% plot()
+
+sctest(efp(formula = prop_1a30 ~ time, data = db1, type = "Rec-CUSUM"))
+
+```

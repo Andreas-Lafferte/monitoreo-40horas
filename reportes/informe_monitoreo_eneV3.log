@@ -1,11 +1,11 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023) (preloaded format=xelatex 2024.3.7)  21 MAR 2024 18:15
+This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.4.3)  18 APR 2024 18:31
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**informe_monitoreo_eneV1.tex
-(./informe_monitoreo_eneV1.tex
+**informe_monitoreo_eneV3.tex
+(./informe_monitoreo_eneV3.tex
 LaTeX2e <2023-11-01> patch level 1
-L3 programming layer <2024-02-20>
+L3 programming layer <2024-03-14>
 (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2023/05/17 v1.4n Standard LaTeX document class
 (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/size10.clo
@@ -97,9 +97,9 @@ LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 )) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/iftex/iftex.sty
 Package: iftex 2022/02/03 v1.0f TeX engine tests
 ) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/unicode-math/unicode-math.sty (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/l3kernel/expl3.sty
-Package: expl3 2024-02-20 L3 programming layer (loader) 
+Package: expl3 2024-03-14 L3 programming layer (loader) 
 (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-xetex.def
-File: l3backend-xetex.def 2024-02-20 L3 backend support: XeTeX
+File: l3backend-xetex.def 2024-03-14 L3 backend support: XeTeX
 \g__graphics_track_int=\count270
 \l__pdf_internal_box=\box53
 \g__pdf_backend_object_int=\count271
@@ -110,9 +110,9 @@ Package: unicode-math 2023/08/13 v0.8r Unicode maths in XeLaTeX and LuaLaTeX
 (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/unicode-math/unicode-math-xetex.sty
 Package: unicode-math-xetex 2023/08/13 v0.8r Unicode maths in XeLaTeX and LuaLaTeX
 (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/l3packages/xparse/xparse.sty
-Package: xparse 2024-02-18 L3 Experimental document command parser
+Package: xparse 2024-03-14 L3 Experimental document command parser
 ) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/l3packages/l3keys2e/l3keys2e.sty
-Package: l3keys2e 2024-02-18 LaTeX2e option processing using LaTeX3 keys
+Package: l3keys2e 2024-03-14 LaTeX2e option processing using LaTeX3 keys
 ) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/fontspec/fontspec.sty
 Package: fontspec 2024/02/13 v2.9a Font selection for XeLaTeX and LuaLaTeX
 (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/fontspec/fontspec-xetex.sty
@@ -298,11 +298,15 @@ Package graphics Info: Driver file: xetex.def on input line 107.
 )
 \Gin@req@height=\dimen180
 \Gin@req@width=\dimen181
-) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/titling/titling.sty
+)
+\cslhangindent=\skip62
+\csllabelwidth=\skip63
+\cslentryspacingunit=\skip64
+(c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/titling/titling.sty
 Package: titling 2009/09/04 v2.1d maketitle typesetting
-\thanksmarkwidth=\skip62
-\thanksmargin=\skip63
-\droptitle=\skip64
+\thanksmarkwidth=\skip65
+\thanksmargin=\skip66
+\droptitle=\skip67
 ) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/koma-script/scrextend.sty
 Package: scrextend 2023/07/07 v3.41 KOMA-Script package (extend other classes with features of KOMA-Script classes)
 (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/koma-script/scrkbase.sty
@@ -319,7 +323,7 @@ Package: scrlogo 2023/07/07 v3.41 KOMA-Script package (logo)
 Applying: [2021/05/01] Usage of raw or classic option list on input line 252.
 Already applied: [0000/00/00] Usage of raw or classic option list on input line 368.
 )))
-Package scrextend Info: File `scrsize12pt.clo' used to setup font sizes on input line 72.
+Package scrextend Info: File `scrsize12pt.clo' used to setup font sizes on input line 95.
 (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/koma-script/scrsize12pt.clo
 File: scrsize12pt.clo 2023/07/07 v3.41 KOMA-Script font size class option (12pt)
 ) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/floatrow/floatrow.sty
@@ -347,28 +351,28 @@ Package floatrow Info: Modified rotfloat package code loaded on input line 473.
 \FB@wd=\dimen190
 \FBo@wd=\dimen191
 \FBc@wd=\dimen192
-\FBo@ht=\skip65
-\FBc@ht=\skip66
-\FBf@ht=\skip67
-\FBo@max=\skip68
-\FBc@max=\skip69
-\FBf@max=\skip70
+\FBo@ht=\skip68
+\FBc@ht=\skip69
+\FBf@ht=\skip70
+\FBo@max=\skip71
+\FBc@max=\skip72
+\FBf@max=\skip73
 \c@FBl@b=\count305
 \floatbox@depth=\count306
 \c@FRobj=\count307
 \c@FRsobj=\count308
-\Xhsize=\skip71
-\sXhsize=\skip72
-\Zhsize=\skip73
-\sZhsize=\skip74
+\Xhsize=\skip74
+\sXhsize=\skip75
+\Zhsize=\skip76
+\sZhsize=\skip77
 \flrow@rowbox=\box64
 \FR@Zunitlength=\dimen193
 \c@FBcnt=\count309
 \FPOScnt=\count310
-\LTleft=\skip75
-\LTright=\skip76
-\LTleft=\skip77
-\LTright=\skip78
+\LTleft=\skip78
+\LTright=\skip79
+\LTleft=\skip80
+\LTright=\skip81
 \flrow@types=\toks28
 ) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/tools/multicol.sty
 Package: multicol 2023/03/30 v1.9f multicolumn formatting (FMi)
@@ -384,8 +388,8 @@ Package: multicol 2023/03/30 v1.9f multicolumn formatting (FMi)
 \page@free=\dimen196
 \premulticols=\dimen197
 \postmulticols=\dimen198
-\multicolsep=\skip79
-\multicolbaselineskip=\skip80
+\multicolsep=\skip82
+\multicolbaselineskip=\skip83
 \partial@page=\box66
 \last@line=\box67
 \mc@boxedresult=\box68
@@ -520,7 +524,7 @@ Package fontspec Info: Font family 'Georgia(0)' created for font 'Georgia'
 (fontspec)             <->s*[1]"Georgia/BI/OT:script=latn;language=dflt;+smcp;mapping=tex-text;"
 
 LaTeX Font Info:    Font shape `TU/Georgia(0)/m/n' will be
-(Font)              scaled to size 12.0pt on input line 76.
+(Font)              scaled to size 12.0pt on input line 99.
 
 Package fontspec Info: Georgia scale = 0.9999973588643117.
 
@@ -573,16 +577,16 @@ Package fontspec Info: Font family 'Georgia(1)' created for font 'Georgia'
 (fontspec)             <->s*[0.9714260790587053]"Georgia/BI/OT:script=latn;language=dflt;+smcp;"
 
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `normal'
-(Font)                  OT1/lmr/m/n --> TU/Georgia(1)/m/n on input line 76.
+(Font)                  OT1/lmr/m/n --> TU/Georgia(1)/m/n on input line 99.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
-(Font)                  OT1/lmr/m/it --> TU/Georgia(1)/m/it on input line 76.
+(Font)                  OT1/lmr/m/it --> TU/Georgia(1)/m/it on input line 99.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
-(Font)                  OT1/lmr/bx/n --> TU/Georgia(1)/b/n on input line 76.
+(Font)                  OT1/lmr/bx/n --> TU/Georgia(1)/b/n on input line 99.
 (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/titlesec/titlesec.sty
 Package: titlesec 2023/10/27 v2.16 Sectioning titles
 \ttl@box=\box111
-\beforetitleunit=\skip81
-\aftertitleunit=\skip82
+\beforetitleunit=\skip84
+\aftertitleunit=\skip85
 \ttl@plus=\dimen259
 \ttl@minus=\dimen260
 \ttl@toksa=\toks29
@@ -601,20 +605,20 @@ LaTeX Warning: Command \underline  has changed.
 
 ) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/ragged2e/ragged2e.sty
 Package: ragged2e 2023/06/22 v3.6 ragged2e Package
-\CenteringLeftskip=\skip83
-\RaggedLeftLeftskip=\skip84
-\RaggedRightLeftskip=\skip85
-\CenteringRightskip=\skip86
-\RaggedLeftRightskip=\skip87
-\RaggedRightRightskip=\skip88
-\CenteringParfillskip=\skip89
-\RaggedLeftParfillskip=\skip90
-\RaggedRightParfillskip=\skip91
-\JustifyingParfillskip=\skip92
-\CenteringParindent=\skip93
-\RaggedLeftParindent=\skip94
-\RaggedRightParindent=\skip95
-\JustifyingParindent=\skip96
+\CenteringLeftskip=\skip86
+\RaggedLeftLeftskip=\skip87
+\RaggedRightLeftskip=\skip88
+\CenteringRightskip=\skip89
+\RaggedLeftRightskip=\skip90
+\RaggedRightRightskip=\skip91
+\CenteringParfillskip=\skip92
+\RaggedLeftParfillskip=\skip93
+\RaggedRightParfillskip=\skip94
+\JustifyingParfillskip=\skip95
+\CenteringParindent=\skip96
+\RaggedLeftParindent=\skip97
+\RaggedRightParindent=\skip98
+\JustifyingParindent=\skip99
 ) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/wrapfig/wrapfig.sty
 \wrapoverhang=\dimen264
 \WF@size=\dimen265
@@ -624,15 +628,15 @@ Package: ragged2e 2023/06/22 v3.6 ragged2e Package
 Package: wrapfig 2003/01/31  v 3.6
 ) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
 Package: fancyhdr 2022/11/09 v4.1 Extensive control of page headers and footers
-\f@nch@headwidth=\skip97
-\f@nch@O@elh=\skip98
-\f@nch@O@erh=\skip99
-\f@nch@O@olh=\skip100
-\f@nch@O@orh=\skip101
-\f@nch@O@elf=\skip102
-\f@nch@O@erf=\skip103
-\f@nch@O@olf=\skip104
-\f@nch@O@orf=\skip105
+\f@nch@headwidth=\skip100
+\f@nch@O@elh=\skip101
+\f@nch@O@erh=\skip102
+\f@nch@O@olh=\skip103
+\f@nch@O@orh=\skip104
+\f@nch@O@elf=\skip105
+\f@nch@O@erf=\skip106
+\f@nch@O@olf=\skip107
+\f@nch@O@orf=\skip108
 ) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/hyphenat/hyphenat.sty
 Package: hyphenat 2009/09/02 v2.3c hyphenation utilities
 \langwohyphens=\language6
@@ -820,14 +824,14 @@ File: pgfmodulematrix.code.tex 2023-01-15 v3.1.10 (3.1.10)
 File: tikzlibrarytopaths.code.tex 2023-01-15 v3.1.10 (3.1.10)
 ))) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/multirow/multirow.sty
 Package: multirow 2021/03/15 v2.8 Span multiple rows of a table
-\multirow@colwidth=\skip106
+\multirow@colwidth=\skip109
 \multirow@cntb=\count344
-\multirow@dima=\skip107
+\multirow@dima=\skip110
 \bigstrutjot=\dimen316
 ) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/colortbl/colortbl.sty
 Package: colortbl 2024/02/20 v1.0g Color table columns (DPC)
 \everycr=\toks43
-\minrowclearance=\skip108
+\minrowclearance=\skip111
 \rownum=\count345
 ) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pdflscape/pdflscape.sty
 Package: pdflscape 2022-10-27 v0.13 Display of landscape pages in PDF
@@ -867,7 +871,7 @@ Package: varwidth 2009/03/30 ver 0.92;  Variable-width minipages
 \tabu@arstrutbox=\box126
 \tabu@hleads=\box127
 \tabu@vleads=\box128
-\tabu@cellskip=\skip109
+\tabu@cellskip=\skip112
 ) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/threeparttable/threeparttable.sty
 Package: threeparttable 2003/06/13  v 3.0
 \@tempboxb=\box129
@@ -878,11 +882,11 @@ Package: environ 2014/05/04 v0.3 A new way to define environments
 (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/trimspaces/trimspaces.sty
 Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
 ))
-\TPTL@width=\skip110
+\TPTL@width=\skip113
 ) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/ulem/ulem.sty
 \UL@box=\box130
 \UL@hyphenbox=\box131
-\UL@skip=\skip111
+\UL@skip=\skip114
 \UL@hook=\toks46
 \UL@height=\dimen328
 \UL@pe=\count353
@@ -895,11 +899,8 @@ Package: makecell 2009/08/03 V0.1e Managing of Tab Column Heads and Cells
 \rotheadsize=\dimen331
 \c@nlinenum=\count354
 \TeXr@lab=\toks47
-) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/tools/hhline.sty
-Package: hhline 2020/01/04 v2.04 Table rule package (DPC)
-)
-\Oldarrayrulewidth=\skip112
-\Oldtabcolsep=\skip113
+) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/bookmark/bookmark.sty
+Package: bookmark 2023-12-10 v1.31 PDF bookmarks (HO)
 (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/hyperref/hyperref.sty
 Package: hyperref 2024-01-20 v7.01h Hypertext links for LaTeX
 (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
@@ -1004,45 +1005,43 @@ Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
 )
 Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 285.
 )
-\Hy@SectionHShift=\skip114
-) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/bookmark/bookmark.sty
-Package: bookmark 2023-12-10 v1.31 PDF bookmarks (HO)
-(c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/bookmark/bkm-dvipdfm.def
+\Hy@SectionHShift=\skip115
+) (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/bookmark/bkm-dvipdfm.def
 File: bkm-dvipdfm.def 2023-12-10 v1.31 bookmark driver for dvipdfm (HO)
 \BKM@id=\count368
 ))
-Package hyperref Info: Option `colorlinks' set `true' on input line 125.
-(./informe_monitoreo_eneV1.aux)
-\openout1 = `informe_monitoreo_eneV1.aux'.
+Package hyperref Info: Option `colorlinks' set `true' on input line 143.
+(./informe_monitoreo_eneV3.aux)
+\openout1 = `informe_monitoreo_eneV3.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 130.
-LaTeX Font Info:    ... okay on input line 130.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 130.
-LaTeX Font Info:    ... okay on input line 130.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 130.
-LaTeX Font Info:    ... okay on input line 130.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 130.
-LaTeX Font Info:    ... okay on input line 130.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 130.
-LaTeX Font Info:    ... okay on input line 130.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 130.
-LaTeX Font Info:    ... okay on input line 130.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 130.
-LaTeX Font Info:    ... okay on input line 130.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 130.
-LaTeX Font Info:    ... okay on input line 130.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 130.
-LaTeX Font Info:    ... okay on input line 130.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 130.
-LaTeX Font Info:    ... okay on input line 130.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 148.
+LaTeX Font Info:    ... okay on input line 148.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/lmss/m/n --> TU/lmss/m/n on input line 130.
+(Font)                  OT1/lmss/m/n --> TU/lmss/m/n on input line 148.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/lmss/bx/n --> TU/lmss/b/n on input line 130.
+(Font)                  OT1/lmss/bx/n --> TU/lmss/b/n on input line 148.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
-(Font)                  OT1/lmtt/m/n --> TU/lmtt/m/n on input line 130.
+(Font)                  OT1/lmtt/m/n --> TU/lmtt/m/n on input line 148.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/lmtt/m/n --> TU/lmtt/b/n on input line 130.
+(Font)                  OT1/lmtt/m/n --> TU/lmtt/b/n on input line 148.
 
 Package fontspec Info: latinmodern-math scale = 1.117039825580538.
 
@@ -1068,7 +1067,7 @@ Package fontspec Info: Font family 'latinmodern-math.otf(0)' created for font
 (fontspec)             - 'bold small caps'  (b/sc) with NFSS spec.: 
 
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(0)/m/n' will be
-(Font)              scaled to size 13.40442pt on input line 130.
+(Font)              scaled to size 13.40442pt on input line 148.
 
 Package fontspec Info: latinmodern-math scale = 1.117039825580538.
 
@@ -1100,15 +1099,15 @@ Package fontspec Info: Font family 'latinmodern-math.otf(1)' created for font
 (fontspec)             - 'bold small caps'  (b/sc) with NFSS spec.: 
 
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 13.40442pt on input line 130.
+(Font)              scaled to size 13.40442pt on input line 148.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `normal' on input line 130.
+(Font)              `operators' in the math version `normal' on input line 148.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  OT1/lmr/m/n --> TU/latinmodern-math.otf(1)/m/n on input line 130.
+(Font)                  OT1/lmr/m/n --> TU/latinmodern-math.otf(1)/m/n on input line 148.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `bold' on input line 130.
+(Font)              `operators' in the math version `bold' on input line 148.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  OT1/lmr/bx/n --> TU/latinmodern-math.otf(1)/b/n on input line 130.
+(Font)                  OT1/lmr/bx/n --> TU/latinmodern-math.otf(1)/b/n on input line 148.
 
 Package fontspec Info: latinmodern-math scale = 1.117039825580538.
 
@@ -1187,13 +1186,13 @@ Package fontspec Info: Font family 'latinmodern-math.otf(2)' created for font
 (fontspec)             =0pt\relax \fontdimen 21\font =0pt\relax 
 
 LaTeX Font Info:    Encoding `OMS' has changed to `TU' for symbol font
-(Font)              `symbols' in the math version `normal' on input line 130.
+(Font)              `symbols' in the math version `normal' on input line 148.
 LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
-(Font)                  OMS/lmsy/m/n --> TU/latinmodern-math.otf(2)/m/n on input line 130.
+(Font)                  OMS/lmsy/m/n --> TU/latinmodern-math.otf(2)/m/n on input line 148.
 LaTeX Font Info:    Encoding `OMS' has changed to `TU' for symbol font
-(Font)              `symbols' in the math version `bold' on input line 130.
+(Font)              `symbols' in the math version `bold' on input line 148.
 LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
-(Font)                  OMS/lmsy/b/n --> TU/latinmodern-math.otf(2)/b/n on input line 130.
+(Font)                  OMS/lmsy/b/n --> TU/latinmodern-math.otf(2)/b/n on input line 148.
 
 Package fontspec Info: latinmodern-math scale = 1.117039825580538.
 
@@ -1254,13 +1253,13 @@ Package fontspec Info: Font family 'latinmodern-math.otf(3)' created for font
 (fontspec)             =8.04265pt\relax \fontdimen 13\font =0pt\relax 
 
 LaTeX Font Info:    Encoding `OMX' has changed to `TU' for symbol font
-(Font)              `largesymbols' in the math version `normal' on input line 130.
+(Font)              `largesymbols' in the math version `normal' on input line 148.
 LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
-(Font)                  OMX/lmex/m/n --> TU/latinmodern-math.otf(3)/m/n on input line 130.
+(Font)                  OMX/lmex/m/n --> TU/latinmodern-math.otf(3)/m/n on input line 148.
 LaTeX Font Info:    Encoding `OMX' has changed to `TU' for symbol font
-(Font)              `largesymbols' in the math version `bold' on input line 130.
+(Font)              `largesymbols' in the math version `bold' on input line 148.
 LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
-(Font)                  OMX/lmex/m/n --> TU/latinmodern-math.otf(3)/b/n on input line 130.
+(Font)                  OMX/lmex/m/n --> TU/latinmodern-math.otf(3)/b/n on input line 148.
 *geometry* driver: auto-detecting
 *geometry* detected driver: xetex
 *geometry* verbose mode - [ preamble ] result:
@@ -1303,23 +1302,23 @@ Package: fr-longtable 2007/11/28 v0.1b (beta) floatrow: additions for longtable
 \flrow@LT@prelastfoot=\box135
 \c@FBLTpage=\count369
 )
-Package hyperref Info: Link coloring ON on input line 130.
+Package hyperref Info: Link coloring ON on input line 148.
 LaTeX Font Info:    Font shape `TU/Georgia(0)/b/n' will be
-(Font)              scaled to size 12.0pt on input line 145.
+(Font)              scaled to size 12.0pt on input line 163.
 LaTeX Font Info:    Font shape `TU/Georgia(0)/b/n' will be
-(Font)              scaled to size 17.28pt on input line 145.
+(Font)              scaled to size 17.28pt on input line 163.
 LaTeX Font Info:    Font shape `TU/Georgia(0)/b/n' will be
-(Font)              scaled to size 24.88pt on input line 147.
+(Font)              scaled to size 24.88pt on input line 165.
 LaTeX Font Info:    Font shape `TU/Georgia(0)/m/n' will be
-(Font)              scaled to size 17.28pt on input line 148.
+(Font)              scaled to size 17.28pt on input line 166.
 LaTeX Font Info:    Font shape `TU/Georgia(0)/b/n' will be
-(Font)              scaled to size 14.4pt on input line 152.
+(Font)              scaled to size 14.4pt on input line 170.
 LaTeX Font Info:    Font shape `TU/Georgia(0)/m/n' will be
-(Font)              scaled to size 14.4pt on input line 153.
+(Font)              scaled to size 14.4pt on input line 171.
 File: logo.PNG Graphic file (type bmp)
 <logo.PNG>
 
-Overfull \hbox (39.79553pt too wide) in paragraph at lines 161--162
+Overfull \hbox (39.79553pt too wide) in paragraph at lines 179--180
 [][] 
  []
 
@@ -1358,133 +1357,138 @@ Overfull \hbox (39.79553pt too wide) in paragraph at lines 161--162
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-(./informe_monitoreo_eneV1.toc
+(./informe_monitoreo_eneV3.toc
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 9.38307pt on input line 3.
+(Font)              scaled to size 9.38307pt on input line 4.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 6.70221pt on input line 3.
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 3.
+(Font)              scaled to size 6.70221pt on input line 4.
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 4.
 (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 13.40588pt on input line 3.
+(Font)              scaled to size 13.40588pt on input line 4.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 9.38411pt on input line 3.
+(Font)              scaled to size 9.38411pt on input line 4.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 6.70294pt on input line 3.
+(Font)              scaled to size 6.70294pt on input line 4.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 13.40314pt on input line 3.
+(Font)              scaled to size 13.40314pt on input line 4.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 9.38219pt on input line 3.
+(Font)              scaled to size 9.38219pt on input line 4.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 6.70157pt on input line 3.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 3.
+(Font)              scaled to size 6.70157pt on input line 4.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 4.
 (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 3.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 4.
 (c:/Users/alaffert/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ))
 \tf@toc=\write4
-\openout4 = `informe_monitoreo_eneV1.toc'.
+\openout4 = `informe_monitoreo_eneV3.toc'.
 
 [2
 
 ] [3]
-LaTeX Font Info:    Font shape `TU/Georgia(0)/m/it' will be
-(Font)              scaled to size 12.0pt on input line 220.
+File: informe_monitoreo_eneV3_files/figure-latex/promoecd-1.pdf Graphic file (type pdf)
+<use informe_monitoreo_eneV3_files/figure-latex/promoecd-1.pdf>
 [4]
-LaTeX Font Info:    Font shape `TU/Georgia(0)/m/n' will be
-(Font)              scaled to size 10.0pt on input line 246.
-LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 11.17035pt on input line 247.
-LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 7.81924pt on input line 247.
-LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 5.58517pt on input line 247.
-LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 11.17157pt on input line 247.
-LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 7.8201pt on input line 247.
-LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 5.58578pt on input line 247.
-LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 11.16928pt on input line 247.
-LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 7.8185pt on input line 247.
-LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 5.58464pt on input line 247.
-
-Overfull \hbox (6.25781pt too wide) in paragraph at lines 312--312
- [][]| 
- []
-
-
-Overfull \hbox (59.74902pt too wide) in paragraph at lines 312--312
- [][]| 
- []
-
-[5]
-Overfull \vbox (90.9241pt too high) has occurred while \output is active []
-
-[6]
-File: informe_monitoreo_eneV1_files/figure-latex/promh-1.pdf Graphic file (type pdf)
-<use informe_monitoreo_eneV1_files/figure-latex/promh-1.pdf>
+File: informe_monitoreo_eneV3_files/figure-latex/fideoecd-1.pdf Graphic file (type pdf)
+<use informe_monitoreo_eneV3_files/figure-latex/fideoecd-1.pdf>
+[5] [6]
+LaTeX Font Info:    Font shape `TU/Georgia(0)/m/it' will be
+(Font)              scaled to size 12.0pt on input line 278.
 [7]
-File: informe_monitoreo_eneV1_files/figure-latex/tramh-1.pdf Graphic file (type pdf)
-<use informe_monitoreo_eneV1_files/figure-latex/tramh-1.pdf>
-File: informe_monitoreo_eneV1_files/figure-latex/tramh2-1.pdf Graphic file (type pdf)
-<use informe_monitoreo_eneV1_files/figure-latex/tramh2-1.pdf>
-[8]
-File: informe_monitoreo_eneV1_files/figure-latex/tendtram1-1.pdf Graphic file (type pdf)
-<use informe_monitoreo_eneV1_files/figure-latex/tendtram1-1.pdf>
-[9]
-File: informe_monitoreo_eneV1_files/figure-latex/tendtram2-1.pdf Graphic file (type pdf)
-<use informe_monitoreo_eneV1_files/figure-latex/tendtram2-1.pdf>
+LaTeX Font Info:    Font shape `TU/Georgia(0)/m/n' will be
+(Font)              scaled to size 9.0pt on input line 304.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
+(Font)              scaled to size 10.05331pt on input line 305.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
+(Font)              scaled to size 5.58517pt on input line 305.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
+(Font)              scaled to size 10.05441pt on input line 305.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
+(Font)              scaled to size 5.58578pt on input line 305.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
+(Font)              scaled to size 10.05235pt on input line 305.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
+(Font)              scaled to size 5.58464pt on input line 305.
+
+Overfull \hbox (4.62704pt too wide) in paragraph at lines 371--371
+ [][]| 
+ []
+
+[8] [9]
+File: informe_monitoreo_eneV3_files/figure-latex/promh-1.pdf Graphic file (type pdf)
+<use informe_monitoreo_eneV3_files/figure-latex/promh-1.pdf>
 [10]
-File: informe_monitoreo_eneV1_files/figure-latex/promhsexo-1.pdf Graphic file (type pdf)
-<use informe_monitoreo_eneV1_files/figure-latex/promhsexo-1.pdf>
-[11] [12]
-File: informe_monitoreo_eneV1_files/figure-latex/tramhsexo-1.pdf Graphic file (type pdf)
-<use informe_monitoreo_eneV1_files/figure-latex/tramhsexo-1.pdf>
-File: informe_monitoreo_eneV1_files/figure-latex/promheta-1.pdf Graphic file (type pdf)
-<use informe_monitoreo_eneV1_files/figure-latex/promheta-1.pdf>
+File: informe_monitoreo_eneV3_files/figure-latex/tramh-1.pdf Graphic file (type pdf)
+<use informe_monitoreo_eneV3_files/figure-latex/tramh-1.pdf>
+File: informe_monitoreo_eneV3_files/figure-latex/tramh2-1.pdf Graphic file (type pdf)
+<use informe_monitoreo_eneV3_files/figure-latex/tramh2-1.pdf>
+[11]
+LaTeX Font Info:    Font shape `TU/Georgia(0)/m/n' will be
+(Font)              scaled to size 10.0pt on input line 404.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
+(Font)              scaled to size 11.17035pt on input line 404.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
+(Font)              scaled to size 7.81924pt on input line 404.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
+(Font)              scaled to size 11.17157pt on input line 404.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
+(Font)              scaled to size 7.8201pt on input line 404.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
+(Font)              scaled to size 11.16928pt on input line 404.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
+(Font)              scaled to size 7.8185pt on input line 404.
+LaTeX Font Info:    Font shape `TU/Georgia(0)/m/n' will be
+(Font)              scaled to size 7.0pt on input line 404.
+File: informe_monitoreo_eneV3_files/figure-latex/cambio1-1.pdf Graphic file (type pdf)
+<use informe_monitoreo_eneV3_files/figure-latex/cambio1-1.pdf>
+[12]
+LaTeX Font Info:    Font shape `TU/Georgia(0)/m/n' will be
+(Font)              scaled to size 8.0pt on input line 432.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
+(Font)              scaled to size 8.93628pt on input line 432.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
+(Font)              scaled to size 8.93726pt on input line 432.
+LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
+(Font)              scaled to size 8.93542pt on input line 432.
 [13]
-File: informe_monitoreo_eneV1_files/figure-latex/tramheta-1.pdf Graphic file (type pdf)
-<use informe_monitoreo_eneV1_files/figure-latex/tramheta-1.pdf>
+File: informe_monitoreo_eneV3_files/figure-latex/cambio2-1.pdf Graphic file (type pdf)
+<use informe_monitoreo_eneV3_files/figure-latex/cambio2-1.pdf>
 [14]
-File: informe_monitoreo_eneV1_files/figure-latex/promedhcine-1.pdf Graphic file (type pdf)
-<use informe_monitoreo_eneV1_files/figure-latex/promedhcine-1.pdf>
-[15]
-File: informe_monitoreo_eneV1_files/figure-latex/tramhcine-1.pdf Graphic file (type pdf)
-<use informe_monitoreo_eneV1_files/figure-latex/tramhcine-1.pdf>
-[16] [17]
-File: informe_monitoreo_eneV1_files/figure-latex/promedhciu-1.pdf Graphic file (type pdf)
-<use informe_monitoreo_eneV1_files/figure-latex/promedhciu-1.pdf>
-[18]
-File: informe_monitoreo_eneV1_files/figure-latex/tramhciu-1.pdf Graphic file (type pdf)
-<use informe_monitoreo_eneV1_files/figure-latex/tramhciu-1.pdf>
+File: informe_monitoreo_eneV3_files/figure-latex/cambio3-1.pdf Graphic file (type pdf)
+<use informe_monitoreo_eneV3_files/figure-latex/cambio3-1.pdf>
+File: informe_monitoreo_eneV3_files/figure-latex/tramhsexo-1.pdf Graphic file (type pdf)
+<use informe_monitoreo_eneV3_files/figure-latex/tramhsexo-1.pdf>
+[15] [16]
+File: informe_monitoreo_eneV3_files/figure-latex/tramheta-1.pdf Graphic file (type pdf)
+<use informe_monitoreo_eneV3_files/figure-latex/tramheta-1.pdf>
+[17] [18]
+File: informe_monitoreo_eneV3_files/figure-latex/tramhcine-1.pdf Graphic file (type pdf)
+<use informe_monitoreo_eneV3_files/figure-latex/tramhcine-1.pdf>
 [19]
-File: informe_monitoreo_eneV1_files/figure-latex/promedhtam-1.pdf Graphic file (type pdf)
-<use informe_monitoreo_eneV1_files/figure-latex/promedhtam-1.pdf>
+File: informe_monitoreo_eneV3_files/figure-latex/tramhciu-1.pdf Graphic file (type pdf)
+<use informe_monitoreo_eneV3_files/figure-latex/tramhciu-1.pdf>
 [20] [21]
-File: informe_monitoreo_eneV1_files/figure-latex/tramhemp-1.pdf Graphic file (type pdf)
-<use informe_monitoreo_eneV1_files/figure-latex/tramhemp-1.pdf>
-[22] [23] [24] (./informe_monitoreo_eneV1.aux)
+File: informe_monitoreo_eneV3_files/figure-latex/tramhemp-1.pdf Graphic file (type pdf)
+<use informe_monitoreo_eneV3_files/figure-latex/tramhemp-1.pdf>
+[22] [23] [24] (./informe_monitoreo_eneV3.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
-L3 programming layer <2024-02-20>
+L3 programming layer <2024-03-14>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 32610 strings out of 476758
- 642968 string characters out of 5800098
- 1944842 words of memory out of 5000000
- 54061 multiletter control sequences out of 15000+600000
- 564706 words of font info for 100 fonts, out of 8000000 for 9000
+ 32623 strings out of 476746
+ 642236 string characters out of 5799883
+ 1945148 words of memory out of 5000000
+ 54079 multiletter control sequences out of 15000+600000
+ 566659 words of font info for 116 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 108i,16n,123p,1759b,607s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 108i,16n,123p,2945b,607s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on informe_monitoreo_eneV1.pdf (24 pages).
+Output written on informe_monitoreo_eneV3.pdf (24 pages).
